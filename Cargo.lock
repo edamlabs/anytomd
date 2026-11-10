@@ -82,7 +82,7 @@ dependencies = [
 
 [[package]]
 name = "anytomd-native"
-version = "1.4.2"
+version = "1.4.3"
 dependencies = [
  "anytomd",
  "pyo3",
