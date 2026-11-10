@@ -6,6 +6,7 @@ All notable changes to this project are documented in this file.
 
 ### Changed
 
+- Engine: anytomd-rs 1.3.2 ([release notes](https://github.com/developer0hye/anytomd-rs/releases/tag/v1.3.2)).
 - README: badge layout, description and identity line standardized on the EDamLabs template.
 
 ## [1.4.2] - 2026-10-26
