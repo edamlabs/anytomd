@@ -4,6 +4,8 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+## [1.4.3] — 2026-11-10
+
 ### Changed
 
 - README: badge layout, description and identity line standardized on the EDamLabs template.
