@@ -8,7 +8,7 @@
           "numero_serie",
           "denominacion"
         ],
-        "median_ms": 487.1
+        "median_ms": 510.9
       },
       "C2": {
         "hits": 26,
@@ -17,39 +17,39 @@
           "numero_serie",
           "denominacion"
         ],
-        "median_ms": 214.1,
+        "median_ms": 217.3,
         "cer": 0.4895
       },
       "C3": {
         "hits": 5,
         "of": 5,
         "missing": [],
-        "median_ms": 67.2,
+        "median_ms": 70.6,
         "cer": 0.0
       },
       "C4-spa": {
         "hits": 2,
         "of": 2,
         "missing": [],
-        "median_ms": 50.3
+        "median_ms": 50.6
       },
       "C4-fra": {
         "hits": 2,
         "of": 2,
         "missing": [],
-        "median_ms": 46.4
+        "median_ms": 53.0
       },
       "C4-deu": {
         "hits": 2,
         "of": 2,
         "missing": [],
-        "median_ms": 52.3
+        "median_ms": 57.0
       },
       "C4-por": {
         "hits": 2,
         "of": 2,
         "missing": [],
-        "median_ms": 48.6
+        "median_ms": 48.8
       },
       "C4-rus": {
         "hits": 1,
@@ -57,34 +57,34 @@
         "missing": [
           "ano"
         ],
-        "median_ms": 56.0
+        "median_ms": 54.1
       },
       "C5": {
         "hits": 6,
         "of": 6,
         "missing": [],
-        "median_ms": 69.8,
-        "cer": 0.2234
+        "median_ms": 66.5,
+        "cer": 0.0
       },
       "C6a": {
         "hits": 5,
         "of": 5,
         "missing": [],
-        "median_ms": 72.6,
+        "median_ms": 68.9,
         "cer": 0.0
       },
       "C6b": {
         "hits": 5,
         "of": 5,
         "missing": [],
-        "median_ms": 68.0,
+        "median_ms": 70.3,
         "cer": 0.0
       },
       "C10": {
         "hits": 2,
         "of": 2,
         "missing": [],
-        "median_ms": 27.9,
+        "median_ms": 30.6,
         "cer": 0.0
       },
       "C8": {
@@ -109,9 +109,9 @@
       }
     },
     "hits_total": 134,
-    "p50_ms": 67.2,
-    "p95_ms": 214.1,
-    "max_rss_mb": 2355
+    "p50_ms": 66.5,
+    "p95_ms": 217.3,
+    "max_rss_mb": 2231
   },
   "tesseract-eng-150": {
     "per_item": {
@@ -467,7 +467,7 @@
           "numero_serie",
           "denominacion"
         ],
-        "median_ms": 484.2
+        "median_ms": 495.0
       },
       "C2": {
         "hits": 26,
@@ -476,39 +476,39 @@
           "numero_serie",
           "denominacion"
         ],
-        "median_ms": 220.3,
+        "median_ms": 216.1,
         "cer": 0.4895
       },
       "C3": {
         "hits": 5,
         "of": 5,
         "missing": [],
-        "median_ms": 69.0,
+        "median_ms": 68.4,
         "cer": 0.0
       },
       "C4-spa": {
         "hits": 2,
         "of": 2,
         "missing": [],
-        "median_ms": 46.6
+        "median_ms": 47.9
       },
       "C4-fra": {
         "hits": 2,
         "of": 2,
         "missing": [],
-        "median_ms": 47.3
+        "median_ms": 48.2
       },
       "C4-deu": {
         "hits": 2,
         "of": 2,
         "missing": [],
-        "median_ms": 50.0
+        "median_ms": 52.1
       },
       "C4-por": {
         "hits": 2,
         "of": 2,
         "missing": [],
-        "median_ms": 49.1
+        "median_ms": 55.3
       },
       "C4-rus": {
         "hits": 1,
@@ -516,135 +516,41 @@
         "missing": [
           "ano"
         ],
-        "median_ms": 54.8
+        "median_ms": 55.5
       },
       "C5": {
         "hits": 6,
         "of": 6,
         "missing": [],
-        "median_ms": 70.7,
-        "cer": 0.2234
-      },
-      "C6a": {
-        "hits": 5,
-        "of": 5,
-        "missing": [],
-        "median_ms": 70.9,
-        "cer": 0.0
-      },
-      "C6b": {
-        "hits": 5,
-        "of": 5,
-        "missing": [],
-        "median_ms": 66.0,
-        "cer": 0.0
-      },
-      "C10": {
-        "hits": 2,
-        "of": 2,
-        "missing": [],
-        "median_ms": 27.9,
-        "cer": 0.0
-      }
-    },
-    "hits_total": 84,
-    "p50_ms": 66.0,
-    "p95_ms": 220.3,
-    "max_rss_mb": 4338
-  },
-  "oar-columns": {
-    "per_item": {
-      "C1": {
-        "hits": 26,
-        "of": 28,
-        "missing": [
-          "numero_serie",
-          "denominacion"
-        ],
-        "median_ms": 496.6
-      },
-      "C2": {
-        "hits": 26,
-        "of": 28,
-        "missing": [
-          "numero_serie",
-          "denominacion"
-        ],
-        "median_ms": 217.9,
-        "cer": 0.4895
-      },
-      "C3": {
-        "hits": 5,
-        "of": 5,
-        "missing": [],
-        "median_ms": 69.4,
-        "cer": 0.0
-      },
-      "C4-spa": {
-        "hits": 2,
-        "of": 2,
-        "missing": [],
-        "median_ms": 46.4
-      },
-      "C4-fra": {
-        "hits": 2,
-        "of": 2,
-        "missing": [],
-        "median_ms": 47.8
-      },
-      "C4-deu": {
-        "hits": 2,
-        "of": 2,
-        "missing": [],
-        "median_ms": 52.3
-      },
-      "C4-por": {
-        "hits": 2,
-        "of": 2,
-        "missing": [],
-        "median_ms": 46.8
-      },
-      "C4-rus": {
-        "hits": 1,
-        "of": 2,
-        "missing": [
-          "ano"
-        ],
-        "median_ms": 54.1
-      },
-      "C5": {
-        "hits": 6,
-        "of": 6,
-        "missing": [],
-        "median_ms": 69.2,
+        "median_ms": 69.3,
         "cer": 0.0
       },
       "C6a": {
         "hits": 5,
         "of": 5,
         "missing": [],
-        "median_ms": 70.5,
+        "median_ms": 70.0,
         "cer": 0.0
       },
       "C6b": {
         "hits": 5,
         "of": 5,
         "missing": [],
-        "median_ms": 68.0,
+        "median_ms": 71.8,
         "cer": 0.0
       },
       "C10": {
         "hits": 2,
         "of": 2,
         "missing": [],
-        "median_ms": 28.6,
+        "median_ms": 29.8,
         "cer": 0.0
       }
     },
     "hits_total": 84,
-    "p50_ms": 68.0,
-    "p95_ms": 217.9,
-    "max_rss_mb": 4974
+    "p50_ms": 68.4,
+    "p95_ms": 216.1,
+    "max_rss_mb": 2704
   },
   "oar-small": {
     "per_item": {
@@ -656,7 +562,7 @@
           "tipo",
           "denominacion"
         ],
-        "median_ms": 347.2
+        "median_ms": 349.6
       },
       "C2": {
         "hits": 26,
@@ -665,39 +571,39 @@
           "numero_serie",
           "denominacion"
         ],
-        "median_ms": 170.7,
+        "median_ms": 178.0,
         "cer": 0.4825
       },
       "C3": {
         "hits": 5,
         "of": 5,
         "missing": [],
-        "median_ms": 60.9,
+        "median_ms": 60.1,
         "cer": 0.0074
       },
       "C4-spa": {
         "hits": 2,
         "of": 2,
         "missing": [],
-        "median_ms": 37.8
+        "median_ms": 38.1
       },
       "C4-fra": {
         "hits": 2,
         "of": 2,
         "missing": [],
-        "median_ms": 42.7
+        "median_ms": 42.8
       },
       "C4-deu": {
         "hits": 2,
         "of": 2,
         "missing": [],
-        "median_ms": 36.7
+        "median_ms": 38.2
       },
       "C4-por": {
         "hits": 2,
         "of": 2,
         "missing": [],
-        "median_ms": 41.5
+        "median_ms": 37.9
       },
       "C4-rus": {
         "hits": 1,
@@ -705,41 +611,41 @@
         "missing": [
           "ano"
         ],
-        "median_ms": 42.1
+        "median_ms": 41.3
       },
       "C5": {
         "hits": 6,
         "of": 6,
         "missing": [],
-        "median_ms": 66.6,
-        "cer": 0.2234
+        "median_ms": 65.9,
+        "cer": 0.0
       },
       "C6a": {
         "hits": 5,
         "of": 5,
         "missing": [],
-        "median_ms": 59.5,
+        "median_ms": 61.3,
         "cer": 0.0074
       },
       "C6b": {
         "hits": 5,
         "of": 5,
         "missing": [],
-        "median_ms": 60.6,
+        "median_ms": 56.3,
         "cer": 0.0074
       },
       "C10": {
         "hits": 2,
         "of": 2,
         "missing": [],
-        "median_ms": 27.0,
+        "median_ms": 25.6,
         "cer": 0.0
       }
     },
     "hits_total": 83,
-    "p50_ms": 59.5,
-    "p95_ms": 170.7,
-    "max_rss_mb": 5368
+    "p50_ms": 56.3,
+    "p95_ms": 178.0,
+    "max_rss_mb": 3853
   },
   "oar-medium": {
     "per_item": {
@@ -974,5 +880,99 @@
     "p50_ms": 62.6,
     "p95_ms": 159.9,
     "max_rss_mb": 4338
+  },
+  "oar-rows": {
+    "per_item": {
+      "C1": {
+        "hits": 26,
+        "of": 28,
+        "missing": [
+          "numero_serie",
+          "denominacion"
+        ],
+        "median_ms": 493.2
+      },
+      "C2": {
+        "hits": 26,
+        "of": 28,
+        "missing": [
+          "numero_serie",
+          "denominacion"
+        ],
+        "median_ms": 220.7,
+        "cer": 0.4895
+      },
+      "C3": {
+        "hits": 5,
+        "of": 5,
+        "missing": [],
+        "median_ms": 69.6,
+        "cer": 0.0
+      },
+      "C4-spa": {
+        "hits": 2,
+        "of": 2,
+        "missing": [],
+        "median_ms": 47.6
+      },
+      "C4-fra": {
+        "hits": 2,
+        "of": 2,
+        "missing": [],
+        "median_ms": 47.3
+      },
+      "C4-deu": {
+        "hits": 2,
+        "of": 2,
+        "missing": [],
+        "median_ms": 50.0
+      },
+      "C4-por": {
+        "hits": 2,
+        "of": 2,
+        "missing": [],
+        "median_ms": 47.1
+      },
+      "C4-rus": {
+        "hits": 1,
+        "of": 2,
+        "missing": [
+          "ano"
+        ],
+        "median_ms": 57.3
+      },
+      "C5": {
+        "hits": 6,
+        "of": 6,
+        "missing": [],
+        "median_ms": 74.4,
+        "cer": 0.2234
+      },
+      "C6a": {
+        "hits": 5,
+        "of": 5,
+        "missing": [],
+        "median_ms": 71.8,
+        "cer": 0.0
+      },
+      "C6b": {
+        "hits": 5,
+        "of": 5,
+        "missing": [],
+        "median_ms": 71.8,
+        "cer": 0.0
+      },
+      "C10": {
+        "hits": 2,
+        "of": 2,
+        "missing": [],
+        "median_ms": 32.4,
+        "cer": 0.0
+      }
+    },
+    "hits_total": 84,
+    "p50_ms": 69.6,
+    "p95_ms": 220.7,
+    "max_rss_mb": 3463
   }
 }

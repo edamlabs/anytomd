@@ -38,6 +38,11 @@ class OcrSettings:
             msg = f"{name} must be an integer, got {value!r}"
             raise ValueError(msg) from error
 
+    @staticmethod
+    def _from_env_flag(environ: Mapping[str, str], name: str, *, default: bool) -> bool:
+        ### Unset or empty keeps the spec's default, so a default of True can still be turned off with "0" or "false".
+        return value.lower() in _TRUTHY if (value := environ.get(name)) else default
+
     ############################################################
 
     ##### PUBLIC #####
@@ -53,9 +58,9 @@ class OcrSettings:
             dpi=default.dpi if (dpi := cls._from_env_int(environ, ENV_DPI)) is None else dpi,
             backend=as_backend_name(environ.get(ENV_BACKEND) or default.backend),
             tessdata_path=environ.get(ENV_TESSDATA) or default.tessdata_path,
-            skip_diagonal_text=environ.get(ENV_SKIP_DIAGONAL, "").lower() in _TRUTHY,
+            skip_diagonal_text=cls._from_env_flag(environ, ENV_SKIP_DIAGONAL, default=default.skip_diagonal_text),
             size=as_model_size(environ.get(ENV_SIZE) or default.size),
-            columns=environ.get(ENV_COLUMNS, "").lower() in _TRUTHY,
+            columns=cls._from_env_flag(environ, ENV_COLUMNS, default=default.columns),
             threads=cls._from_env_int(environ, ENV_THREADS),
         )
 

@@ -184,7 +184,7 @@ ad.convert("scan.pdf", ocr=ad.OcrSpec(language="spa+eng", dpi=200))
 | `tessdata_path` | `None` | Directory with `*.traineddata`, for the offline machine |
 | `skip_diagonal_text` | `False` | `True` drops rotated stamps and watermarks (tesseract) |
 | `size` | `"tiny"` | oar model set: `tiny` ships in the wheel, one recognizer per script picked by `language`; `small`/`medium` are multilingual and load from disk |
-| `columns` | `False` | oar reads label–value forms row by row (oar) |
+| `columns` | `True` | oar reads each row across, labels beside their values; `False` keeps detection order (oar) |
 | `threads` | `None` | ONNX Runtime intra-op threads (oar) |
 
 ```bash

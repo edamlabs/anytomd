@@ -124,7 +124,7 @@ impl OarEngine {
     /// Build the pipeline `pool` times. `tiny` and the orientation model are embedded, `script` picks tiny's
     /// recognizer; `small` and `medium` read every script and need `model_dir`.
     #[new]
-    #[pyo3(signature = (*, size = "tiny", script = "latin", columns = false, orientation = true, model_dir = None, threads = None, pool = 1))]
+    #[pyo3(signature = (*, size = "tiny", script = "latin", columns = true, orientation = true, model_dir = None, threads = None, pool = 1))]
     #[allow(clippy::too_many_arguments)]
     fn new(
         size: &str,

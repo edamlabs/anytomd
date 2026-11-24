@@ -37,7 +37,7 @@ async def test_specs_ocr_defaults() -> None:
         None,
         False,
     )
-    assert (spec.size, spec.columns, spec.threads) == ("tiny", False, None)
+    assert (spec.size, spec.columns, spec.threads) == ("tiny", True, None)
 
 
 @pytest.mark.parametrize("language", ["spa eng", "spa+EN", "spa+", "+eng", "es-ES", ""])

@@ -44,7 +44,7 @@ async def test_oar_spec_reaches_the_engine(oar) -> None:
 
 async def test_oar_tiny_engines_are_pooled(oar) -> None:
     engine = oar.OarBackend(OcrSpec(backend="oar"))._engine
-    assert engine.args == ("tiny", "latin", False, None, None, 4)
+    assert engine.args == ("tiny", "latin", True, None, None, 4)
 
 
 async def test_oar_recognize_text(backend) -> None:

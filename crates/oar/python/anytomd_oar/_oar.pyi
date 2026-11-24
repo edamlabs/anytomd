@@ -10,7 +10,7 @@ class OarEngine:
         *,
         size: Literal["tiny", "small", "medium"] = "tiny",
         script: str = "latin",
-        columns: bool = False,
+        columns: bool = True,
         orientation: bool = True,
         model_dir: str | None = None,
         threads: int | None = None,

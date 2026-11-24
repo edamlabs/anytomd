@@ -90,8 +90,8 @@ Latin for `eng`, `spa`, `fra`, `deu` and 29 more, Cyrillic for `rus`, `ukr`, `be
 `"spa+eng"` the first language decides. A language no embedded recognizer reads (`chi_sim`) sends `auto` to liteparse;
 `small` and `medium` are the multilingual PP-OCRv6 sets, three files each in `ANYTOMD_OCR_MODEL_DIR` — never downloaded
 at run time. The tiny set is accuracy first: about 0.2 s per scanned page on all cores, about 1 s on one
-(`threads=1`). For label–value forms, `ocr=ad.OcrSpec(backend="oar", columns=True)` reads each row across, labels and
-values together.
+(`threads=1`). oar reads each row across, so a form keeps each label beside its value (`columns=False` returns
+detection order instead). Prose set in two columns comes out interleaved row by row in either mode.
 
 The numbers come from `tools/ocr_bench.py` against the committed corpus; the baseline is `docs/ocr_fidelity.json`,
 enforced by `make ocr`.

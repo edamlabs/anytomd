@@ -67,7 +67,7 @@ def _oar_engines() -> dict[str, ad.OcrSpec]:
     os.environ.setdefault("ANYTOMD_OCR_MODEL_DIR", str(ROOT / "crates" / "oar" / "models"))
     return {
         "oar-tiny": ad.OcrSpec(backend="oar"),
-        "oar-columns": ad.OcrSpec(backend="oar", columns=True),
+        "oar-rows": ad.OcrSpec(backend="oar", columns=False),
         "oar-small": ad.OcrSpec(backend="oar", size="small"),
     }
 

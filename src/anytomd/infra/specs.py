@@ -67,7 +67,9 @@ class OcrSpec:
     size: OcrModelSize = (
         "tiny"  # the oar engine's model set: tiny embedded per script, small/medium multilingual on disk
     )
-    columns: bool = False  # the oar engine groups lines into text columns; the other engines ignore it
+    columns: bool = (
+        True  # the oar engine reads each row across, labels beside their values; the other engines ignore it
+    )
     threads: int | None = (
         None  # the oar engine's ONNX Runtime intra-op threads; None lets ort choose; the other engines ignore it
     )

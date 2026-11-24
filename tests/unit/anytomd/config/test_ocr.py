@@ -70,3 +70,9 @@ async def test_ocr_settings_bad_integer_names_its_variable(variable) -> None:
 
 async def test_ocr_settings_tessdata_dirs_split_the_prefix() -> None:
     assert OcrSettings.tessdata_dirs({"TESSDATA_PREFIX": f"/a{os.pathsep}{os.pathsep}/b"}) == ["/a", "/b"]
+
+
+@pytest.mark.parametrize(("value", "columns"), [(None, True), ("", True), ("0", False), ("false", False), ("on", True)])
+async def test_ocr_settings_columns_flag_turns_the_default_off(value, columns) -> None:
+    environ = {} if value is None else {"ANYTOMD_OCR_COLUMNS": value}
+    assert OcrSettings.from_env(environ).columns is columns
