@@ -1,6 +1,6 @@
 """Fetch the PP-OCR model files for `crates/oar` from pinned release URLs, verified by SHA-256.
 
-The six embedded files (v6 tiny det, latin and cyrillic v5 rec + dicts, orientation) are needed to build the `anytomd-oar` wheel;
+The six embedded files (v6 tiny det, latin and cyrillic v5 rec + dicts, orientation) are compiled into the anytomd wheel;
 `--embedded` fetches only those. The small/medium sets are for a runtime `model_dir` — the engine never
 downloads anything itself.
 
@@ -84,7 +84,7 @@ def _main_fetch(name: str, model: Model) -> str:
     target = ROOT / name
     if target.exists() and hashlib.sha256(target.read_bytes()).hexdigest() == model.sha256:
         return f"cached  {name}"
-    request = urllib.request.Request(model.url, headers={"User-Agent": "anytomd-oar-models/1.0"})
+    request = urllib.request.Request(model.url, headers={"User-Agent": "anytomd-models/1.0"})
     try:
         with urllib.request.urlopen(request, timeout=120) as response:
             payload = response.read()

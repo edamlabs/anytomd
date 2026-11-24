@@ -35,9 +35,6 @@ full = [
     { name = "openai" },
     { name = "pydantic-settings" },
 ]
-oar = [
-    { name = "anytomd-oar" },
-]
 ocr = [
     { name = "liteparse" },
 ]
@@ -99,13 +96,12 @@ test = [
 [package.metadata]
 requires-dist = [
     { name = "anytomd", extras = ["ocr", "pdf", "vlm"], marker = "extra == 'full'" },
-    { name = "anytomd-oar", marker = "extra == 'oar'", directory = "crates/oar" },
     { name = "liteparse", marker = "extra == 'ocr'", specifier = ">=2.21" },
     { name = "liteparse", marker = "extra == 'pdf'", specifier = ">=2.21" },
     { name = "openai", marker = "extra == 'vlm'", specifier = ">=3.31" },
     { name = "pydantic-settings", marker = "extra == 'vlm'", specifier = ">=2.11" },
 ]
-provides-extras = ["ocr", "pdf", "oar", "vlm", "full"]
+provides-extras = ["ocr", "pdf", "vlm", "full"]
 
 [package.metadata.requires-dev]
 build = [{ name = "maturin", specifier = ">=1.16.0" }]
@@ -149,11 +145,6 @@ test = [
     { name = "pytest-randomly", specifier = ">=5.1.0" },
     { name = "pytest-timeout", specifier = ">=2.4" },
 ]
-
-[[package]]
-name = "anytomd-oar"
-version = "1.5.0"
-source = { directory = "crates/oar" }
 
 [[package]]
 name = "click"

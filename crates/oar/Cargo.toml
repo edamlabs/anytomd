@@ -1,17 +1,21 @@
 [package]
 name = "anytomd-oar"
-description = "Local Rust OCR for anytomd: PP-OCR models through oar-ocr on ONNX Runtime, offline by default."
+description = "Local Rust OCR inside anytomd: PP-OCR models through oar-ocr on ONNX Runtime, offline by default."
 version.workspace = true
 edition.workspace = true
 license.workspace = true
 repository.workspace = true
 publish = false
 
+### The embedded models are git-ignored (fetched by tools/get_oar_models.py): listed here so the sdist carries them.
+include = ["src/**", "build.rs", "Cargo.toml", "README.md", "models/pp-ocrv6_tiny_det.onnx", "models/latin_pp-ocrv5_mobile_rec.onnx", "models/ppocrv5_latin_dict.txt", "models/cyrillic_pp-ocrv5_mobile_rec.onnx", "models/ppocrv5_cyrillic_dict.txt", "models/pp-lcnet_x1_0_doc_ori.onnx"]
+
 [lib]
 name = "anytomd_oar"
-crate-type = ["cdylib", "rlib"]
+crate-type = ["rlib"]
 
 [dependencies]
 image = { workspace = true }
 oar-ocr = { workspace = true }
+ort = { workspace = true }
 pyo3 = { workspace = true }

@@ -1,19 +1,22 @@
 # Decisions
 
-### 2026-11-24 · `auto` prefers the Rust engine; `full` stays without it
+### 2026-11-24 · One package: the Rust OCR ships inside the anytomd wheel
 
-**Decision.** When `anytomd-oar` is importable and reads the language, the default OCR path is oar (tiny set,
-models inside the wheel); otherwise liteparse decides (Tesseract, ocria-nano, its own order). The `oar` extra does
-not enter `full`.
+**Decision.** `crates/oar` is an rlib linked into `anytomd._native`; there is no `anytomd-oar` distribution and no
+`[oar]` extra. `auto` uses oar when it reads the language, liteparse otherwise. Intel macOS builds without it
+(`_native.OCR` is False there) and behaves as 1.4.3: `auto` falls to liteparse, `backend="oar"` raises. ONNX Runtime
+is fetched at build time over rustls, not native-tls.
 
-**Evidence.** Bench over the corpus with the Citroën sheet, truth corrected against the scan: oar-tiny 26/28, against
-tesseract-spa-300 18/28 and ocria-nano 21/28; corpus totals 134 (default through oar) against 123 (ocria-nano), and
-the wheel works offline from the first use, which neither liteparse engine does without a download. `full` without
-oar: the wheel weighs 34 MB per platform, and scanned PDFs go through liteparse anyway. Revisit `full` if oar takes
-scanned PDFs.
+**Evidence.** Bench on the Citroën sheet, truth corrected against the scan: oar-tiny 26/28, ocria-nano 21/28,
+tesseract-spa-300 18/28; corpus totals 134 (default through oar) against 123 (ocria-nano). The wheel grows from
+1.4 MB to about 34 MB and reads image text offline from `pip install anytomd`, with no second PyPI project to keep in
+lockstep. `ort-sys` 2.0.0-rc.15 publishes no `x86_64-apple-darwin` ONNX Runtime (its `dist.tsv`), hence the
+per-target dependency. The default `tls-native` needs OpenSSL headers that `quay.io/pypa/manylinux_2_28_x86_64` lacks:
+the build failed there in `openssl-sys`, and passes with `tls-rustls`.
 
-**Rejected.** oar as the only engine (PDF, DOCX images still need liteparse); ocria as the default (modified
-OpenRAIL-M license with use restrictions, needs a first pull); keeping the liteparse-only order.
+**Rejected.** A separate `anytomd-oar` wheel behind `[oar]` (two packages, a PyPI project and a version check to keep
+in sync, OCR off by default); dropping Intel macOS (breaks 1.4.3 users for no gain over a per-target build);
+`yum install openssl-devel` in the release containers (sdist builds would still need OpenSSL).
 
 ### 2026-11-24 · One engine, several ONNX sessions: the pool
 

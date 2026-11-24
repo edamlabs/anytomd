@@ -661,5 +661,11 @@ fn _native(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<ConversionResult>()?;
     m.add_class::<ConversionWarning>()?;
     m.add("ENGINE_VERSION", env!("ANYTOMD_ENGINE_VERSION"))?;
+    #[cfg(not(all(target_os = "macos", target_arch = "x86_64")))]
+    m.add_class::<anytomd_oar::OarEngine>()?;
+    m.add(
+        "OCR",
+        cfg!(not(all(target_os = "macos", target_arch = "x86_64"))),
+    )?;
     Ok(())
 }

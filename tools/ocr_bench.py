@@ -7,7 +7,6 @@ it is never committed.
 """
 
 import argparse
-import importlib.util
 import json
 import os
 import resource
@@ -18,6 +17,7 @@ from pathlib import Path
 from typing import Final
 
 import anytomd as ad
+from anytomd import _native
 
 ROOT: Final = Path(__file__).resolve().parent.parent
 CORPUS: Final = ROOT / "tests" / "resources" / "ocr"
@@ -61,8 +61,8 @@ ITEMS: Final[tuple[Item, ...]] = (
 
 
 def _oar_engines() -> dict[str, ad.OcrSpec]:
-    """The oar arms only when the wheel is importable; medium is measured out (71 hits at p50 386 ms)."""
-    if importlib.util.find_spec("anytomd_oar") is None:
+    """The oar arms only where the wheel carries the engine; medium is measured out (71 hits at p50 386 ms)."""
+    if not _native.OCR:
         return {}
     os.environ.setdefault("ANYTOMD_OCR_MODEL_DIR", str(ROOT / "crates" / "oar" / "models"))
     return {

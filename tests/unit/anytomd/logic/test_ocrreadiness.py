@@ -1,11 +1,11 @@
 """OcrReadiness: gaps reported offline, never a network call, never an engine load; and `ocr_ready` on top."""
 
 import sys
-import types
 
 import pytest
 
 import anytomd as ad
+from anytomd.backends.oar import OarBackend
 from anytomd.backends.registry import BackendRegistry
 from anytomd.infra.specs import OcrSpec
 from anytomd.logic.ocrreadiness import OcrReadiness
@@ -18,15 +18,15 @@ def readiness() -> OcrReadiness:
 
 @pytest.fixture
 def oar_present(monkeypatch) -> None:
-    monkeypatch.setitem(sys.modules, "anytomd_oar", types.ModuleType("anytomd_oar"))
+    monkeypatch.setattr(OarBackend, "available", True)
 
 
 ##### OAR #####
 
 
-async def test_readiness_oar_missing_extra_names_the_extra(readiness) -> None:
-    gaps = readiness.run(OcrSpec(backend="oar"))
-    assert gaps == ["the 'oar' extra is not installed: pip install 'anytomd[oar]'"]
+async def test_readiness_oar_unbuilt_names_the_platform(readiness) -> None:
+    gaps = readiness.run(OcrSpec(backend="oar", language="chi_sim"))
+    assert gaps == ["the Rust OCR engine is not built for this platform (Intel macOS)"]
 
 
 async def test_readiness_oar_tiny_is_always_ready(readiness, oar_present) -> None:
@@ -102,17 +102,19 @@ async def test_readiness_auto_prefers_the_installed_oar(readiness, oar_present) 
 
 async def test_readiness_auto_falls_to_liteparse(readiness) -> None:
     gaps = readiness.run(OcrSpec())
-    assert len(gaps) <= 1  # the oar extra is hidden from units: auto probes liteparse's default backend
+    assert len(gaps) <= 1  # units run without the engine: auto probes liteparse's default backend
 
 
 ##### THE PROBE PATHS NO MACHINE SETS UP ALONE #####
 
 
-async def test_readiness_oar_via_find_spec_when_never_imported(readiness, monkeypatch) -> None:
+async def test_readiness_liteparse_via_find_spec_when_never_imported(readiness, monkeypatch) -> None:
     ### The path for a library that has never entered sys.modules: find_spec answers, a None entry would raise there.
-    monkeypatch.delitem(sys.modules, "anytomd_oar", raising=False)
+    monkeypatch.delitem(sys.modules, "liteparse", raising=False)
     monkeypatch.setattr("importlib.util.find_spec", lambda name: None)
-    assert readiness.run(OcrSpec(backend="oar")) == ["the 'oar' extra is not installed: pip install 'anytomd[oar]'"]
+    assert readiness.run(OcrSpec(backend="ocria-nano")) == [
+        "the 'ocr' extra is not installed: pip install 'anytomd[ocr]'"
+    ]
 
 
 async def test_readiness_ocria_without_the_models_module(readiness, monkeypatch) -> None:
@@ -140,4 +142,4 @@ async def test_api_ocr_ready_without_a_spec_reads_the_environment(monkeypatch) -
 
 async def test_api_ocr_ready_with_a_spec_ignores_the_environment(monkeypatch) -> None:
     monkeypatch.setenv("ANYTOMD_OCR_BACKEND", "tesseract")
-    assert ad.ocr_ready(OcrSpec(backend="oar")) == ["the 'oar' extra is not installed: pip install 'anytomd[oar]'"]
+    assert ad.ocr_ready(OcrSpec(backend="oar")) == ["the Rust OCR engine is not built for this platform (Intel macOS)"]

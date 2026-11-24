@@ -1,10 +1,12 @@
-# anytomd-oar
+# crates/oar
 
-Local Rust OCR engine for [anytomd](https://pypi.org/project/anytomd/): PP-OCR on ONNX Runtime, via
-[oar-ocr](https://crates.io/crates/oar-ocr). Installed as the `anytomd[oar]` extra; used by
-`ad.OcrSpec(backend="oar")` or automatically when it is the only engine present.
+The OCR engine of [anytomd](https://pypi.org/project/anytomd/), linked into `anytomd._native`: PP-OCR on ONNX Runtime
+through [oar-ocr](https://crates.io/crates/oar-ocr). Not published on its own; `ad.OcrSpec(backend="oar")` or `auto`
+reach it.
 
 - `size="tiny"` needs nothing: the PP-OCRv6 tiny detector, the PP-OCRv5 Latin and Cyrillic recognizers and the
-  document-orientation model are compiled into the wheel; `OarEngine(script=...)` picks the recognizer.
-- `size="small"` and `size="medium"` load three files each from `ANYTOMD_OCR_MODEL_DIR`. Nothing is ever downloaded at run time.
-- Apache-2.0 throughout (code and PaddleOCR model weights).
+  document-orientation model are compiled in; `script` picks the recognizer. `make models` fetches them, sha-pinned.
+- `size="small"` and `size="medium"` load three files each from `ANYTOMD_OCR_MODEL_DIR`. Nothing is ever downloaded at
+  run time.
+- Not built for Intel macOS: ONNX Runtime publishes no `x86_64-apple-darwin` binaries.
+- Apache-2.0 code and PaddleOCR weights; ONNX Runtime is MIT (see `THIRD_PARTY_LICENSES.md`).

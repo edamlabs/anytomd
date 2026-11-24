@@ -1,4 +1,4 @@
-//! The optional `anytomd[oar]` engine: local PP-OCR recognition in Rust through oar-ocr, on ONNX Runtime.
+//! The Rust OCR engine linked into `anytomd._native`: local PP-OCR recognition through oar-ocr, on ONNX Runtime.
 //! `tiny` is embedded: the PP-OCRv6 tiny detector with the PP-OCRv5 mobile recognizer of one script.
 //! `small` and `medium` are the multilingual PP-OCRv6 sets, loaded from a directory.
 
@@ -111,7 +111,7 @@ fn decode(bytes: &[u8]) -> PyResult<image::RgbImage> {
 
 /// A PP-OCR recognizer: `recognize` returns the page's text and its mean confidence.
 /// One ONNX session serializes its pipeline, so the engine holds a small pool and calls round-robin over it.
-#[pyclass(frozen)]
+#[pyclass(frozen, module = "anytomd._native")]
 pub struct OarEngine {
     sessions: Vec<OAROCR>,
     next: AtomicUsize,
@@ -243,10 +243,4 @@ impl OarEngine {
             .unwrap_or_else(|_| Err(PyRuntimeError::new_err("the OCR engine panicked")))
         })
     }
-}
-
-#[pymodule]
-fn _oar(_py: Python<'_>, module: &Bound<'_, PyModule>) -> PyResult<()> {
-    module.add_class::<OarEngine>()?;
-    Ok(())
 }

@@ -6,6 +6,7 @@ from pathlib import Path
 from types import MappingProxyType
 from typing import Final
 
+from anytomd.backends.oar import OarBackend
 from anytomd.backends.registry import BackendRegistry
 from anytomd.config.ocr import OcrSettings
 from anytomd.infra.specs import OcrSpec
@@ -80,11 +81,18 @@ class OcrReadiness:
         )
 
     def _run_oar(self, spec: OcrSpec) -> list[str]:
-        gaps = self._run_extra("anytomd_oar", "oar") or (
-            []
-            if spec.oar_reads
-            else [f"no embedded oar recognizer reads {spec.language!r}: use size 'small' or 'medium'"]
-        )
+        ### The first reason wins: a wheel without the engine makes the language question moot.
+        gaps = [
+            reason
+            for failed, reason in (
+                (not OarBackend.available, "the Rust OCR engine is not built for this platform (Intel macOS)"),
+                (
+                    not spec.oar_reads,
+                    f"no embedded oar recognizer reads {spec.language!r}: use size 'small' or 'medium'",
+                ),
+            )
+            if failed
+        ][:1]
         needed = _OAR_MODELS.get(spec.size, ())
         if gaps or not needed:
             return gaps
@@ -101,7 +109,7 @@ class OcrReadiness:
 
     def _run_auto(self, spec: OcrSpec) -> list[str]:
         ### auto prefers oar, then liteparse with its own default backend: the probe mirrors that order.
-        if self._run_installed("anytomd_oar") and spec.oar_reads:
+        if OarBackend.available and spec.oar_reads:
             return self._run_oar(spec)
         if not self._run_installed("liteparse"):
             return self._run_extra("liteparse", "ocr")

@@ -1,9 +1,9 @@
-.PHONY: build build-release test lint format types arch check cargo-fmt clean dist stress samples samples-real integration suite publish docs serve cov licenses apidiff fidelity
+.PHONY: models build build-release test lint format types arch check cargo-fmt clean dist stress samples samples-real integration suite publish docs serve cov licenses apidiff fidelity
 
-build:            ## compile native extension into the venv (debug)
+build: models     ## compile native extension into the venv (debug)
 	uv run maturin develop
 
-build-release:    ## compile native extension into the venv (release)
+build-release: models ## compile native extension into the venv (release)
 	uv run maturin develop --release
 
 test:             ## unit suite with coverage gate
@@ -27,12 +27,8 @@ samples:          ## regenerate synthetic test fixtures
 samples-real:     ## download real-world sample documents
 	uv run python tools/get_samples.py
 
-oar-models:       ## fetch the embedded PP-OCR files crates/oar compiles into the wheel
+models:           ## fetch (sha-pinned, cached) the PP-OCR files the native extension compiles in
 	python3 tools/get_oar_models.py --embedded
-
-oar-build:        ## build the anytomd-oar wheel into dist-oar
-	$(MAKE) oar-models
-	uvx --from 'maturin<2' maturin build --release -m crates/oar/Cargo.toml --out dist-oar
 
 lint:             ## ruff check
 	uv run ruff check src tests tools
@@ -66,7 +62,7 @@ cargo-fmt:        ## rustfmt the native crate
 clean:            ## remove build artifacts
 	rm -rf target dist site .pytest_cache .ruff_cache htmlcov coverage.xml coverage.lcov .coverage upstream-context
 
-dist:             ## build release wheels + sdist -> dist/
+dist: models      ## build release wheels + sdist -> dist/
 	uv run maturin build --release --sdist --out dist
 
 docs:             ## build the documentation (strict, fails on broken links)
@@ -75,5 +71,5 @@ docs:             ## build the documentation (strict, fails on broken links)
 serve:            ## serve the documentation locally
 	uv run zensical serve -a 127.0.0.1:8000
 
-publish:          ## build and upload to PyPI
+publish: models   ## build and upload to PyPI
 	uv run maturin publish

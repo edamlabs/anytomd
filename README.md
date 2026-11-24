@@ -12,9 +12,8 @@ An **EDamLabs binding**: a Python binding of a third-party engine that keeps its
 ## Install
 
 ```bash
-pip install anytomd            # or: uv add anytomd
-pip install "anytomd[full]"    # + PDF, text in images (OCR), image descriptions (vision LLM)
-pip install "anytomd[oar]"     # + the Rust OCR engine: offline from the first use, models inside the wheel
+pip install anytomd            # or: uv add anytomd — reads text in images offline, Rust OCR built in
+pip install "anytomd[full]"    # + PDF, scanned PDFs, image descriptions (vision LLM)
 ```
 
 ## Usage

@@ -7,15 +7,14 @@ from types import MappingProxyType, ModuleType
 from typing import Final, NoReturn, Protocol
 
 from anytomd.backends.base import Describer, Reader, Recognizer
+from anytomd.backends.oar import OarBackend
 from anytomd.infra.errors import DescriptionError, MissingExtraError
 from anytomd.infra.specs import OcrSpec, VisionSpec
 
 logger = logging.getLogger(__name__)
 
 ### Each third-party library the extras install, and the extra that installs it.
-EXTRAS: Final = MappingProxyType(
-    {"liteparse": "ocr", "openai": "vlm", "pydantic_settings": "vlm", "anytomd_oar": "oar"}
-)
+EXTRAS: Final = MappingProxyType({"liteparse": "ocr", "openai": "vlm", "pydantic_settings": "vlm"})
 
 
 class _LiteparseEngine(Recognizer, Reader, Protocol):
@@ -40,10 +39,6 @@ class BackendRegistry:
                 case str() as name if name in EXTRAS:
                     logger.debug("optional backend %s unavailable: install anytomd[%s]", path, EXTRAS[name])
                     return None
-                case str() as name if name == path:
-                    ### The backend module itself is absent: an extra not built into this install (no oar wheel).
-                    logger.debug("optional backend %s unavailable: not present in this installation", path)
-                    return None
             raise
 
     @staticmethod
@@ -66,8 +61,7 @@ class BackendRegistry:
     @staticmethod
     @functools.lru_cache(maxsize=4)
     def _common_oar(ocr: OcrSpec, model_dir: str | None) -> Recognizer | None:
-        module = BackendRegistry._common_module("anytomd.backends.oar")
-        return module.OarBackend(ocr, model_dir=model_dir) if module else None
+        return OarBackend(ocr, model_dir=model_dir) if OarBackend.available else None
 
     @staticmethod
     def _oar_model_dir() -> str | None:
@@ -84,7 +78,7 @@ class BackendRegistry:
             return None
         match ocr.backend:
             case "oar":
-                return self._recognizer_oar(ocr) or self.missing("OCR backend 'oar'", "oar")
+                return self._recognizer_oar(ocr) or self.unbuilt()
             case "auto":
                 ### oar first when it reads the language; a script no embedded model reads goes to liteparse.
                 return (self._recognizer_oar(ocr) if ocr.oar_reads else None) or self._recognizer_liteparse(ocr)
@@ -114,6 +108,12 @@ class BackendRegistry:
         """Raise the error that names the extra to install."""
         msg = f"{what} needs the '{extra}' extra: pip install 'anytomd[{extra}]'"
         raise MissingExtraError(msg)
+
+    @staticmethod
+    def unbuilt() -> NoReturn:
+        """Raise the error that says this wheel carries no Rust OCR engine (Intel macOS) and what to use instead."""
+        msg = "the Rust OCR engine is not built for this platform (Intel macOS): use backend 'auto' or 'tesseract'"
+        raise ValueError(msg)
 
     @staticmethod
     def unconfigured() -> NoReturn:
