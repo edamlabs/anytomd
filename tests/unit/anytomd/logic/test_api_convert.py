@@ -7,6 +7,9 @@ import sys
 import pytest
 
 import anytomd as ad
+from anytomd.backends.base import Recognition
+from anytomd.backends.registry import BackendRegistry
+from anytomd.infra.warnings import DocumentWarning
 
 ENGINE_FORMATS = [
     ("notes.txt", "Plain memo body."),
@@ -257,3 +260,65 @@ async def test_convert_directory(tmp_path) -> None:
 async def test_convert_every_failure_is_a_conversion_error(raw) -> None:
     with pytest.raises(ad.ConversionError):
         ad.convert(raw("shredded.docx"), format="docx")
+
+
+##### THE OCR OPTION (P-02, P-09) #####
+
+
+class _ScriptedRecognizer:
+    def __init__(self, text: str, warning: DocumentWarning | None = None) -> None:
+        self.recognition = Recognition(text, warning)
+        self.images: list[bytes] = []
+
+    def recognize(self, image: bytes) -> Recognition:
+        self.images.append(image)
+        return self.recognition
+
+
+@pytest.fixture
+def scripted_ocr(monkeypatch):
+    """Swap the recognizer for a scripted one, recording the spec the registry was asked with."""
+
+    def _install(text: str, warning: DocumentWarning | None = None) -> tuple[_ScriptedRecognizer, list]:
+        engine, seen = _ScriptedRecognizer(text, warning), []
+        monkeypatch.setattr(
+            BackendRegistry, "recognizer", lambda self, ocr: (seen.append(ocr), engine if ocr is not None else None)[1]
+        )
+        return engine, seen
+
+    return _install
+
+
+async def test_convert_passes_the_spec_through(scripted_ocr, path_of) -> None:
+    spec = ad.OcrSpec(language="spa", dpi=200)
+    engine, seen = scripted_ocr("LETRA")
+    document = ad.convert(path_of("shot.png"), ocr=spec)
+    assert seen == [spec]
+    assert engine.images
+    assert "LETRA" in document.markdown
+
+
+async def test_convert_true_reads_the_environment(scripted_ocr, path_of, monkeypatch) -> None:
+    monkeypatch.setenv("ANYTOMD_OCR_LANGUAGE", "deu")
+    _, seen = scripted_ocr("TEXT")
+    ad.convert(path_of("shot.png"), ocr=True)
+    assert seen[0].language == "deu"
+
+
+async def test_convert_false_asks_for_no_recognizer(scripted_ocr, path_of) -> None:
+    _, seen = scripted_ocr("x")
+    document = ad.convert(path_of("shot.png"), ocr=False)
+    assert seen == [None]
+    assert not document.markdown.startswith("x")
+
+
+async def test_convert_ocr_failure_surfaces_a_warning(scripted_ocr, path_of) -> None:
+    warning = DocumentWarning("ocr_failed", "traineddata download refused", "image")
+    scripted_ocr("", warning)
+    codes = [item.code for item in ad.convert(path_of("shot.png")).warnings]
+    assert "ocr_failed" in codes
+
+
+async def test_convert_ocr_success_carries_no_warning(scripted_ocr, path_of) -> None:
+    scripted_ocr("CLEAN")
+    assert "ocr_failed" not in [item.code for item in ad.convert(path_of("shot.png")).warnings]

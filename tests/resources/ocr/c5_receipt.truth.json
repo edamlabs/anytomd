@@ -1,0 +1,11 @@
+{
+  "fields": {
+    "titulo": "TICKET FACTURA",
+    "adblue": "AdBlue",
+    "obra": "45,00",
+    "total": "76,40",
+    "pago": "T-8891",
+    "base": "63,14"
+  },
+  "text": "TICKET FACTURA AdBlue 10L 12,50 Filtro aceite 9,95 Mano de obra 45,00 TOTAL IVA 76,40 Ref. pago T-8891 BASE 63,14"
+}

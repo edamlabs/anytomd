@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 from anytomd.backends.liteparse import LiteparseBackend
 from anytomd.backends.openai import OpenaiBackend
-from anytomd.infra.specs import VisionSpec
+from anytomd.infra.specs import OcrSpec, VisionSpec
 from tests.conftest import text_pdf
 
 if TYPE_CHECKING:
@@ -12,9 +12,9 @@ if TYPE_CHECKING:
 
 
 async def test_base_liteparse_is_recognizer_and_reader(raw) -> None:
-    recognizer: Recognizer = LiteparseBackend()
-    reader: Reader = LiteparseBackend(ocr=False)
-    assert recognizer.recognize(raw("shot.png")) == ""
+    recognizer: Recognizer = LiteparseBackend(OcrSpec())
+    reader: Reader = LiteparseBackend(OcrSpec(), pdf_ocr=False)
+    assert recognizer.recognize(raw("shot.png")).text == ""
     assert reader.read(text_pdf("Port")).pages == 1
 
 

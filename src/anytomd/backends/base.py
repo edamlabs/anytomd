@@ -1,17 +1,25 @@
 """Ports of the optional backends: each act has a sync and an async (`a`-prefixed) form."""
 
 from types import TracebackType
-from typing import Protocol, Self
+from typing import NamedTuple, Protocol, Self
 
 from anytomd.infra.documents import Document
+from anytomd.infra.warnings import DocumentWarning
+
+
+class Recognition(NamedTuple):
+    """The text an image yielded, plus the recoverable problem met reading it, if any."""
+
+    text: str
+    warning: DocumentWarning | None = None
 
 
 class Recognizer(Protocol):
-    """Reads the letters an image holds; `""` when it holds none."""
+    """Reads the letters an image holds; empty text when it holds none, a warning when reading failed."""
 
-    def recognize(self, image: bytes) -> str: ...
+    def recognize(self, image: bytes) -> Recognition: ...
 
-    async def arecognize(self, image: bytes) -> str: ...
+    async def arecognize(self, image: bytes) -> Recognition: ...
 
 
 class Describer(Protocol):

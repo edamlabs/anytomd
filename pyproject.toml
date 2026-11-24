@@ -4,7 +4,7 @@ build-backend = "maturin"
 
 [project]
 name = "anytomd"
-version = "1.4.3"
+version = "1.5.0"
 description = "Python binding of anytomd-rs: DOCX, PPTX, XLSX, HTML, CSV, images and more to clean Markdown for LLMs."
 readme = "README.md"
 requires-python = ">=3.12"
@@ -25,8 +25,9 @@ classifiers = [
 ]
 
 [project.optional-dependencies]
-ocr = ["liteparse>=2.16"]
-pdf = ["liteparse>=2.16"]
+ocr = ["liteparse>=2.21"]
+pdf = ["liteparse>=2.21"]
+oar = ["anytomd-oar==1.5.0"]
 vlm = ["openai>=3.31", "pydantic-settings>=2.11"]
 full = ["anytomd[ocr,pdf,vlm]"]
 
@@ -57,8 +58,9 @@ test = [
     "pytest-randomly>=5.1.0",
     "pytest-timeout>=2.4",
     "hypothesis>=6.170.17",
-    "liteparse>=2.19.0",
+    "liteparse>=2.21.0",
     "openai>=3.57.0",
+    "pillow>=12.0",
     "pydantic-settings>=2.16.3",
 ]
 build = [
@@ -79,6 +81,9 @@ dev = [
 required-version = ">=0.12"
 default-groups = ["dev"]
 cache-keys = [{ file = "pyproject.toml" }, { file = "Cargo.toml" }, { file = "Cargo.lock" }, { file = "crates/**/*.rs" }]
+
+[tool.uv.sources]
+anytomd-oar = { path = "crates/oar" }
 
 [tool.maturin]
 manifest-path = "crates/native/Cargo.toml"
@@ -116,6 +121,8 @@ ban-relative-imports = "all"
 
 [tool.ty.environment]
 python-version = "3.12"
+### The optional oar package is not installed in CI: its source and stubs resolve the import.
+extra-paths = ["crates/oar/python"]
 
 [tool.ty.src]
 include = ["src", "tests", "tools"]
@@ -127,7 +134,7 @@ error-on-warning = true
 [tool.pytest]
 minversion = "9.0"
 testpaths = ["tests"]
-addopts = ["--import-mode=importlib", "-ra", "-m", "not stress and not integration"]
+addopts = ["--import-mode=importlib", "-ra", "-m", "not stress and not integration and not ocr"]
 pythonpath = ["."]
 strict = true
 filterwarnings = ["error"]
@@ -138,6 +145,7 @@ markers = [
     "slow: slow tests (deselect with -m 'not slow')",
     "stress: concurrency and volume stress (run via make stress)",
     "integration: third-party LLM provider calls (run via make integration)",
+    "ocr: real-engine OCR battery, offline proofs and packaging (run via make ocr)",
 ]
 
 [tool.coverage.run]

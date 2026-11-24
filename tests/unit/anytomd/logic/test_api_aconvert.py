@@ -28,7 +28,9 @@ async def test_aconvert_pdf_without_the_extra(missing_extra) -> None:
 
 
 async def test_aconvert_image_ocr(path_of) -> None:
-    assert (await ad.aconvert(path_of("real_photo.png"))).markdown == "This is just\nan example."
+    assert (
+        await ad.aconvert(path_of("real_photo.png"), ocr=ad.OcrSpec(dpi=150, backend="tesseract"))
+    ).markdown == "This is just\nan example."
 
 
 async def test_aconvert_image_falls_back_to_vision(path_of, fake_vision) -> None:

@@ -4,14 +4,15 @@ A maturin project: the Rust crate at `crates/native` compiles to `anytomd._nativ
 
 ```text
 crates/native/src/lib.rs     the engine bridge: conversion, detection, image hooks, asyncio, error mapping
+crates/oar/src/lib.rs        the optional `anytomd-oar` engine: PP-OCR through oar-ocr, ONNX Runtime
 src/anytomd/__init__.py      the public surface: re-exports logic/api and the infra types
 src/anytomd/infra/           contracts: errors, Document, DocumentWarning, specs, formats, routes
-src/anytomd/backends/        engines: native (anytomd-rs), liteparse (PDF, OCR), openai (vision), registry
-src/anytomd/logic/           use cases: api, conversion, detection, description, the image fallback
-src/anytomd/config/          VisionSettings (ANYTOMD_VISION_*)
+src/anytomd/backends/        engines: native (anytomd-rs), liteparse (PDF, OCR), oar (Rust OCR), openai (vision), registry
+src/anytomd/logic/           use cases: api, conversion, detection, description, the image fallback, ocr_ready
+src/anytomd/config/          VisionSettings (ANYTOMD_VISION_*), OcrSettings (ANYTOMD_OCR_*)
 tests/unit/anytomd/          mirror of src/anytomd/
 tests/stress                 threads, gather, ZIP bomb, hypothesis fuzzing
-tests/integration            real vision model (ANYTOMD_VISION_*)
+tests/integration            real vision model (ANYTOMD_VISION_*); the OCR battery (`make ocr`) and its corpus
 tests/resources              fixtures (synthetic + real-world)
 tools/                       fixtures, coverage, text recovery and API diff scripts
 ```
@@ -45,6 +46,9 @@ uv run prek run --all-files --hook-stage pre-push # coverage gates
 make check         # ruff + ty + tach + build + unit tests
 make stress        # concurrency and volume suite
 make integration   # the vision fallback and describe against a real model
+make ocr           # the OCR battery: engines, corpus C2–C10, cold start, RSS, offline (needs the oar wheel)
+make oar-models    # fetch the embedded PP-OCR files crates/oar compiles into its wheel (sha256-pinned)
+make oar-build     # build the anytomd-oar wheel into dist-oar
 make suite         # everything
 make cov           # Rust line coverage driven by the Python suite (gate: 90 %)
 make fidelity      # text recovery per format; fails on regression vs docs/fidelity.json (ARGS=--update rewrites it)

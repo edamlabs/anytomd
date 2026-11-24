@@ -1,0 +1,978 @@
+{
+  "default": {
+    "per_item": {
+      "C1": {
+        "hits": 26,
+        "of": 28,
+        "missing": [
+          "numero_serie",
+          "denominacion"
+        ],
+        "median_ms": 510.9
+      },
+      "C2": {
+        "hits": 26,
+        "of": 28,
+        "missing": [
+          "numero_serie",
+          "denominacion"
+        ],
+        "median_ms": 217.3,
+        "cer": 0.4895
+      },
+      "C3": {
+        "hits": 5,
+        "of": 5,
+        "missing": [],
+        "median_ms": 70.6,
+        "cer": 0.0
+      },
+      "C4-spa": {
+        "hits": 2,
+        "of": 2,
+        "missing": [],
+        "median_ms": 50.6
+      },
+      "C4-fra": {
+        "hits": 2,
+        "of": 2,
+        "missing": [],
+        "median_ms": 53.0
+      },
+      "C4-deu": {
+        "hits": 2,
+        "of": 2,
+        "missing": [],
+        "median_ms": 57.0
+      },
+      "C4-por": {
+        "hits": 2,
+        "of": 2,
+        "missing": [],
+        "median_ms": 48.8
+      },
+      "C4-rus": {
+        "hits": 1,
+        "of": 2,
+        "missing": [
+          "ano"
+        ],
+        "median_ms": 54.1
+      },
+      "C5": {
+        "hits": 6,
+        "of": 6,
+        "missing": [],
+        "median_ms": 66.5,
+        "cer": 0.0
+      },
+      "C6a": {
+        "hits": 5,
+        "of": 5,
+        "missing": [],
+        "median_ms": 68.9,
+        "cer": 0.0
+      },
+      "C6b": {
+        "hits": 5,
+        "of": 5,
+        "missing": [],
+        "median_ms": 70.3,
+        "cer": 0.0
+      },
+      "C10": {
+        "hits": 2,
+        "of": 2,
+        "missing": [],
+        "median_ms": 30.6,
+        "cer": 0.0
+      },
+      "C8": {
+        "hits": 26,
+        "of": 28,
+        "missing": [
+          "numero_serie",
+          "denominacion"
+        ],
+        "median_ms": null
+      },
+      "C9": {
+        "hits": 24,
+        "of": 28,
+        "missing": [
+          "numero_serie",
+          "identificacion",
+          "denominacion",
+          "cilindrada"
+        ],
+        "median_ms": null
+      }
+    },
+    "hits_total": 134,
+    "p50_ms": 66.5,
+    "p95_ms": 217.3,
+    "max_rss_mb": 2231
+  },
+  "tesseract-eng-150": {
+    "per_item": {
+      "C1": {
+        "hits": 11,
+        "of": 28,
+        "missing": [
+          "numero_serie",
+          "identificacion",
+          "clasificacion",
+          "carroceria",
+          "tipo",
+          "denominacion",
+          "mtma_pe_1",
+          "carga_1",
+          "carga_2",
+          "altura",
+          "anchura",
+          "voladizo",
+          "entreejes",
+          "motor",
+          "cilindrada",
+          "potencia",
+          "contrasena"
+        ],
+        "median_ms": 770.0
+      },
+      "C2": {
+        "hits": 5,
+        "of": 28,
+        "missing": [
+          "numero_serie",
+          "identificacion",
+          "certificado",
+          "clasificacion",
+          "marca",
+          "tipo",
+          "variante",
+          "denominacion",
+          "ano_tres",
+          "mtma_pe_2",
+          "mmh_sif",
+          "neumaticos",
+          "carga_1",
+          "carga_2",
+          "via",
+          "longitud",
+          "voladizo",
+          "entreejes",
+          "motor",
+          "cilindrada",
+          "potencia",
+          "contrasena",
+          "sello"
+        ],
+        "median_ms": 395.3,
+        "cer": 0.8643
+      },
+      "C3": {
+        "hits": 5,
+        "of": 5,
+        "missing": [],
+        "median_ms": 161.8,
+        "cer": 0.0
+      },
+      "C4-spa": {
+        "hits": 2,
+        "of": 2,
+        "missing": [],
+        "median_ms": 118.0
+      },
+      "C4-fra": {
+        "hits": 2,
+        "of": 2,
+        "missing": [],
+        "median_ms": 111.5
+      },
+      "C4-deu": {
+        "hits": 2,
+        "of": 2,
+        "missing": [],
+        "median_ms": 111.3
+      },
+      "C4-por": {
+        "hits": 2,
+        "of": 2,
+        "missing": [],
+        "median_ms": 109.6
+      },
+      "C4-rus": {
+        "hits": 2,
+        "of": 2,
+        "missing": [],
+        "median_ms": 102.8
+      },
+      "C5": {
+        "hits": 5,
+        "of": 6,
+        "missing": [
+          "titulo"
+        ],
+        "median_ms": 193.6,
+        "cer": 0.1702
+      },
+      "C6a": {
+        "hits": 1,
+        "of": 5,
+        "missing": [
+          "titulo",
+          "crecimiento",
+          "headcount",
+          "revision"
+        ],
+        "median_ms": 163.3,
+        "cer": 0.7704
+      },
+      "C6b": {
+        "hits": 0,
+        "of": 5,
+        "missing": [
+          "titulo",
+          "crecimiento",
+          "region",
+          "headcount",
+          "revision"
+        ],
+        "median_ms": 199.2,
+        "cer": 0.9037
+      },
+      "C10": {
+        "hits": 2,
+        "of": 2,
+        "missing": [],
+        "median_ms": 71.6,
+        "cer": 0.06
+      },
+      "C8": {
+        "hits": 5,
+        "of": 28,
+        "missing": [
+          "numero_serie",
+          "identificacion",
+          "certificado",
+          "clasificacion",
+          "marca",
+          "tipo",
+          "variante",
+          "denominacion",
+          "ano_tres",
+          "mtma_pe_2",
+          "mmh_sif",
+          "neumaticos",
+          "carga_1",
+          "carga_2",
+          "via",
+          "longitud",
+          "voladizo",
+          "entreejes",
+          "motor",
+          "cilindrada",
+          "potencia",
+          "contrasena",
+          "sello"
+        ],
+        "median_ms": null
+      },
+      "C9": {
+        "hits": 21,
+        "of": 28,
+        "missing": [
+          "numero_serie",
+          "identificacion",
+          "certificado",
+          "tipo",
+          "denominacion",
+          "carga_1",
+          "cilindrada"
+        ],
+        "median_ms": null
+      }
+    },
+    "hits_total": 65,
+    "p50_ms": 161.8,
+    "p95_ms": 395.3,
+    "max_rss_mb": 2488
+  },
+  "tesseract-spa-300": {
+    "per_item": {
+      "C1": {
+        "hits": 18,
+        "of": 28,
+        "missing": [
+          "numero_serie",
+          "identificacion",
+          "clasificacion",
+          "tipo",
+          "denominacion",
+          "neumaticos",
+          "carga_1",
+          "carga_2",
+          "potencia",
+          "sello"
+        ],
+        "median_ms": 1091.6
+      },
+      "C2": {
+        "hits": 21,
+        "of": 28,
+        "missing": [
+          "numero_serie",
+          "identificacion",
+          "certificado",
+          "tipo",
+          "denominacion",
+          "cilindrada",
+          "potencia"
+        ],
+        "median_ms": 593.1,
+        "cer": 0.4895
+      },
+      "C3": {
+        "hits": 5,
+        "of": 5,
+        "missing": [],
+        "median_ms": 195.3,
+        "cer": 0.0
+      },
+      "C4-spa": {
+        "hits": 2,
+        "of": 2,
+        "missing": [],
+        "median_ms": 132.0
+      },
+      "C4-fra": {
+        "hits": 2,
+        "of": 2,
+        "missing": [],
+        "median_ms": 124.1
+      },
+      "C4-deu": {
+        "hits": 2,
+        "of": 2,
+        "missing": [],
+        "median_ms": 124.1
+      },
+      "C4-por": {
+        "hits": 2,
+        "of": 2,
+        "missing": [],
+        "median_ms": 119.0
+      },
+      "C4-rus": {
+        "hits": 2,
+        "of": 2,
+        "missing": [],
+        "median_ms": 115.3
+      },
+      "C5": {
+        "hits": 3,
+        "of": 6,
+        "missing": [
+          "obra",
+          "total",
+          "pago"
+        ],
+        "median_ms": 145.0,
+        "cer": 0.2128
+      },
+      "C6a": {
+        "hits": 1,
+        "of": 5,
+        "missing": [
+          "titulo",
+          "crecimiento",
+          "headcount",
+          "revision"
+        ],
+        "median_ms": 187.5,
+        "cer": 0.7704
+      },
+      "C6b": {
+        "hits": 0,
+        "of": 5,
+        "missing": [
+          "titulo",
+          "crecimiento",
+          "region",
+          "headcount",
+          "revision"
+        ],
+        "median_ms": 179.4,
+        "cer": 0.8667
+      },
+      "C10": {
+        "hits": 2,
+        "of": 2,
+        "missing": [],
+        "median_ms": 88.9,
+        "cer": 0.0
+      },
+      "C8": {
+        "hits": 21,
+        "of": 28,
+        "missing": [
+          "numero_serie",
+          "identificacion",
+          "certificado",
+          "tipo",
+          "denominacion",
+          "cilindrada",
+          "potencia"
+        ],
+        "median_ms": null
+      },
+      "C9": {
+        "hits": 9,
+        "of": 28,
+        "missing": [
+          "numero_serie",
+          "identificacion",
+          "certificado",
+          "clasificacion",
+          "carroceria",
+          "tipo",
+          "variante",
+          "denominacion",
+          "mmh_sif",
+          "neumaticos",
+          "carga_1",
+          "carga_2",
+          "altura",
+          "anchura",
+          "voladizo",
+          "entreejes",
+          "cilindrada",
+          "potencia",
+          "contrasena"
+        ],
+        "median_ms": null
+      }
+    },
+    "hits_total": 90,
+    "p50_ms": 145.0,
+    "p95_ms": 593.1,
+    "max_rss_mb": 2998
+  },
+  "oar-tiny": {
+    "per_item": {
+      "C1": {
+        "hits": 26,
+        "of": 28,
+        "missing": [
+          "numero_serie",
+          "denominacion"
+        ],
+        "median_ms": 495.0
+      },
+      "C2": {
+        "hits": 26,
+        "of": 28,
+        "missing": [
+          "numero_serie",
+          "denominacion"
+        ],
+        "median_ms": 216.1,
+        "cer": 0.4895
+      },
+      "C3": {
+        "hits": 5,
+        "of": 5,
+        "missing": [],
+        "median_ms": 68.4,
+        "cer": 0.0
+      },
+      "C4-spa": {
+        "hits": 2,
+        "of": 2,
+        "missing": [],
+        "median_ms": 47.9
+      },
+      "C4-fra": {
+        "hits": 2,
+        "of": 2,
+        "missing": [],
+        "median_ms": 48.2
+      },
+      "C4-deu": {
+        "hits": 2,
+        "of": 2,
+        "missing": [],
+        "median_ms": 52.1
+      },
+      "C4-por": {
+        "hits": 2,
+        "of": 2,
+        "missing": [],
+        "median_ms": 55.3
+      },
+      "C4-rus": {
+        "hits": 1,
+        "of": 2,
+        "missing": [
+          "ano"
+        ],
+        "median_ms": 55.5
+      },
+      "C5": {
+        "hits": 6,
+        "of": 6,
+        "missing": [],
+        "median_ms": 69.3,
+        "cer": 0.0
+      },
+      "C6a": {
+        "hits": 5,
+        "of": 5,
+        "missing": [],
+        "median_ms": 70.0,
+        "cer": 0.0
+      },
+      "C6b": {
+        "hits": 5,
+        "of": 5,
+        "missing": [],
+        "median_ms": 71.8,
+        "cer": 0.0
+      },
+      "C10": {
+        "hits": 2,
+        "of": 2,
+        "missing": [],
+        "median_ms": 29.8,
+        "cer": 0.0
+      }
+    },
+    "hits_total": 84,
+    "p50_ms": 68.4,
+    "p95_ms": 216.1,
+    "max_rss_mb": 2704
+  },
+  "oar-small": {
+    "per_item": {
+      "C1": {
+        "hits": 25,
+        "of": 28,
+        "missing": [
+          "numero_serie",
+          "tipo",
+          "denominacion"
+        ],
+        "median_ms": 349.6
+      },
+      "C2": {
+        "hits": 26,
+        "of": 28,
+        "missing": [
+          "numero_serie",
+          "denominacion"
+        ],
+        "median_ms": 178.0,
+        "cer": 0.4825
+      },
+      "C3": {
+        "hits": 5,
+        "of": 5,
+        "missing": [],
+        "median_ms": 60.1,
+        "cer": 0.0074
+      },
+      "C4-spa": {
+        "hits": 2,
+        "of": 2,
+        "missing": [],
+        "median_ms": 38.1
+      },
+      "C4-fra": {
+        "hits": 2,
+        "of": 2,
+        "missing": [],
+        "median_ms": 42.8
+      },
+      "C4-deu": {
+        "hits": 2,
+        "of": 2,
+        "missing": [],
+        "median_ms": 38.2
+      },
+      "C4-por": {
+        "hits": 2,
+        "of": 2,
+        "missing": [],
+        "median_ms": 37.9
+      },
+      "C4-rus": {
+        "hits": 1,
+        "of": 2,
+        "missing": [
+          "ano"
+        ],
+        "median_ms": 41.3
+      },
+      "C5": {
+        "hits": 6,
+        "of": 6,
+        "missing": [],
+        "median_ms": 65.9,
+        "cer": 0.0
+      },
+      "C6a": {
+        "hits": 5,
+        "of": 5,
+        "missing": [],
+        "median_ms": 61.3,
+        "cer": 0.0074
+      },
+      "C6b": {
+        "hits": 5,
+        "of": 5,
+        "missing": [],
+        "median_ms": 56.3,
+        "cer": 0.0074
+      },
+      "C10": {
+        "hits": 2,
+        "of": 2,
+        "missing": [],
+        "median_ms": 25.6,
+        "cer": 0.0
+      }
+    },
+    "hits_total": 83,
+    "p50_ms": 56.3,
+    "p95_ms": 178.0,
+    "max_rss_mb": 3853
+  },
+  "oar-medium": {
+    "per_item": {
+      "C1": {
+        "hits": 18,
+        "of": 28,
+        "missing": [
+          "numero_serie",
+          "identificacion",
+          "certificado",
+          "tipo",
+          "variante",
+          "denominacion",
+          "carga_1",
+          "carga_2",
+          "cilindrada",
+          "potencia"
+        ],
+        "median_ms": 1647.9,
+        "cer": 1.1371
+      },
+      "C2": {
+        "hits": 26,
+        "of": 28,
+        "missing": [
+          "numero_serie",
+          "denominacion"
+        ],
+        "median_ms": 967.9,
+        "cer": 0.4853
+      },
+      "C3": {
+        "hits": 5,
+        "of": 5,
+        "missing": [],
+        "median_ms": 401.9,
+        "cer": 0.0
+      },
+      "C4-spa": {
+        "hits": 2,
+        "of": 2,
+        "missing": [],
+        "median_ms": 306.8
+      },
+      "C4-fra": {
+        "hits": 2,
+        "of": 2,
+        "missing": [],
+        "median_ms": 248.9
+      },
+      "C4-deu": {
+        "hits": 2,
+        "of": 2,
+        "missing": [],
+        "median_ms": 285.0
+      },
+      "C4-por": {
+        "hits": 2,
+        "of": 2,
+        "missing": [],
+        "median_ms": 315.2
+      },
+      "C4-rus": {
+        "hits": 1,
+        "of": 2,
+        "missing": [
+          "ano"
+        ],
+        "median_ms": 301.4
+      },
+      "C5": {
+        "hits": 6,
+        "of": 6,
+        "missing": [],
+        "median_ms": 598.2,
+        "cer": 0.2234
+      },
+      "C6a": {
+        "hits": 5,
+        "of": 5,
+        "missing": [],
+        "median_ms": 386.4,
+        "cer": 0.6222
+      },
+      "C6b": {
+        "hits": 0,
+        "of": 5,
+        "missing": [
+          "titulo",
+          "crecimiento",
+          "region",
+          "headcount",
+          "revision"
+        ],
+        "median_ms": 751.0,
+        "cer": 0.8963
+      },
+      "C10": {
+        "hits": 2,
+        "of": 2,
+        "missing": [],
+        "median_ms": 310.9,
+        "cer": 0.0
+      }
+    },
+    "hits_total": 71,
+    "p50_ms": 386.4,
+    "p95_ms": 967.9,
+    "max_rss_mb": 1599
+  },
+  "ocria-nano": {
+    "per_item": {
+      "C1": {
+        "hits": 21,
+        "of": 28,
+        "missing": [
+          "numero_serie",
+          "identificacion",
+          "carroceria",
+          "tipo",
+          "denominacion",
+          "carga_1",
+          "potencia"
+        ],
+        "median_ms": 274.2
+      },
+      "C2": {
+        "hits": 25,
+        "of": 28,
+        "missing": [
+          "numero_serie",
+          "tipo",
+          "denominacion"
+        ],
+        "median_ms": 105.6,
+        "cer": 0.5161
+      },
+      "C3": {
+        "hits": 5,
+        "of": 5,
+        "missing": [],
+        "median_ms": 62.6,
+        "cer": 0.0074
+      },
+      "C4-spa": {
+        "hits": 2,
+        "of": 2,
+        "missing": [],
+        "median_ms": 37.8
+      },
+      "C4-fra": {
+        "hits": 2,
+        "of": 2,
+        "missing": [],
+        "median_ms": 36.5
+      },
+      "C4-deu": {
+        "hits": 2,
+        "of": 2,
+        "missing": [],
+        "median_ms": 37.4
+      },
+      "C4-por": {
+        "hits": 2,
+        "of": 2,
+        "missing": [],
+        "median_ms": 36.9
+      },
+      "C4-rus": {
+        "hits": 2,
+        "of": 2,
+        "missing": [],
+        "median_ms": 39.9
+      },
+      "C5": {
+        "hits": 6,
+        "of": 6,
+        "missing": [],
+        "median_ms": 95.0,
+        "cer": 0.0
+      },
+      "C6a": {
+        "hits": 0,
+        "of": 5,
+        "missing": [
+          "titulo",
+          "crecimiento",
+          "region",
+          "headcount",
+          "revision"
+        ],
+        "median_ms": 159.9,
+        "cer": 0.9556
+      },
+      "C6b": {
+        "hits": 5,
+        "of": 5,
+        "missing": [],
+        "median_ms": 64.9,
+        "cer": 0.0074
+      },
+      "C10": {
+        "hits": 2,
+        "of": 2,
+        "missing": [],
+        "median_ms": 30.9,
+        "cer": 0.0
+      },
+      "C8": {
+        "hits": 25,
+        "of": 28,
+        "missing": [
+          "numero_serie",
+          "tipo",
+          "denominacion"
+        ],
+        "median_ms": null
+      },
+      "C9": {
+        "hits": 24,
+        "of": 28,
+        "missing": [
+          "numero_serie",
+          "identificacion",
+          "denominacion",
+          "cilindrada"
+        ],
+        "median_ms": null
+      }
+    },
+    "hits_total": 123,
+    "p50_ms": 62.6,
+    "p95_ms": 159.9,
+    "max_rss_mb": 4338
+  },
+  "oar-rows": {
+    "per_item": {
+      "C1": {
+        "hits": 26,
+        "of": 28,
+        "missing": [
+          "numero_serie",
+          "denominacion"
+        ],
+        "median_ms": 493.2
+      },
+      "C2": {
+        "hits": 26,
+        "of": 28,
+        "missing": [
+          "numero_serie",
+          "denominacion"
+        ],
+        "median_ms": 220.7,
+        "cer": 0.4895
+      },
+      "C3": {
+        "hits": 5,
+        "of": 5,
+        "missing": [],
+        "median_ms": 69.6,
+        "cer": 0.0
+      },
+      "C4-spa": {
+        "hits": 2,
+        "of": 2,
+        "missing": [],
+        "median_ms": 47.6
+      },
+      "C4-fra": {
+        "hits": 2,
+        "of": 2,
+        "missing": [],
+        "median_ms": 47.3
+      },
+      "C4-deu": {
+        "hits": 2,
+        "of": 2,
+        "missing": [],
+        "median_ms": 50.0
+      },
+      "C4-por": {
+        "hits": 2,
+        "of": 2,
+        "missing": [],
+        "median_ms": 47.1
+      },
+      "C4-rus": {
+        "hits": 1,
+        "of": 2,
+        "missing": [
+          "ano"
+        ],
+        "median_ms": 57.3
+      },
+      "C5": {
+        "hits": 6,
+        "of": 6,
+        "missing": [],
+        "median_ms": 74.4,
+        "cer": 0.2234
+      },
+      "C6a": {
+        "hits": 5,
+        "of": 5,
+        "missing": [],
+        "median_ms": 71.8,
+        "cer": 0.0
+      },
+      "C6b": {
+        "hits": 5,
+        "of": 5,
+        "missing": [],
+        "median_ms": 71.8,
+        "cer": 0.0
+      },
+      "C10": {
+        "hits": 2,
+        "of": 2,
+        "missing": [],
+        "median_ms": 32.4,
+        "cer": 0.0
+      }
+    },
+    "hits_total": 84,
+    "p50_ms": 69.6,
+    "p95_ms": 220.7,
+    "max_rss_mb": 3463
+  }
+}

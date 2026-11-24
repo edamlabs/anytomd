@@ -434,15 +434,19 @@ fn running_loop(py: Python<'_>) -> PyResult<PyObj> {
 
 // ##### RUNTIME #####
 
-fn runtime() -> &'static tokio::runtime::Runtime {
-    static RUNTIME: OnceLock<tokio::runtime::Runtime> = OnceLock::new();
-    RUNTIME.get_or_init(|| {
-        tokio::runtime::Builder::new_multi_thread()
-            .thread_name("anytomd")
-            .enable_all()
-            .build()
-            .expect("anytomd runtime")
-    })
+// A runtime that cannot start (threads or descriptors exhausted) is a typed error on every call, never a panic.
+fn runtime() -> PyResult<&'static tokio::runtime::Runtime> {
+    static RUNTIME: OnceLock<Result<tokio::runtime::Runtime, String>> = OnceLock::new();
+    RUNTIME
+        .get_or_init(|| {
+            tokio::runtime::Builder::new_multi_thread()
+                .thread_name("anytomd")
+                .enable_all()
+                .build()
+                .map_err(|error| error.to_string())
+        })
+        .as_ref()
+        .map_err(|error| PyRuntimeError::new_err(format!("anytomd runtime: {error}")))
 }
 
 /// Tokio task aborted when the awaiting Python coroutine is dropped or cancelled.
@@ -585,7 +589,7 @@ async fn convert_file_async(
     })?;
     let target = path.clone();
     let outcome =
-        TaskGuard(runtime().spawn(async move { rs_convert_file_async(&target, &options).await }))
+        TaskGuard(runtime()?.spawn(async move { rs_convert_file_async(&target, &options).await }))
             .await
             .map_err(join_reason)?;
     Python::attach(|py| finish(py, outcome, extract_images, Some(&path)))
@@ -625,7 +629,7 @@ async fn convert_bytes_async(
         )
     })?;
     let outcome = TaskGuard(
-        runtime().spawn(async move { rs_convert_bytes_async(&data, &format, &options).await }),
+        runtime()?.spawn(async move { rs_convert_bytes_async(&data, &format, &options).await }),
     )
     .await
     .map_err(join_reason)?;

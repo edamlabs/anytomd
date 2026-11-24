@@ -4,19 +4,35 @@ import logging
 
 import liteparse
 
+from anytomd.backends.base import Recognition
 from anytomd.infra.documents import Document
 from anytomd.infra.errors import MalformedDocumentError
+from anytomd.infra.specs import OcrSpec
 from anytomd.infra.warnings import DocumentWarning
 
 logger = logging.getLogger(__name__)
 
 
 class LiteparseBackend:
-    """One OCR engine and one PDF engine, both in-process."""
+    """One OCR engine and one PDF engine, both in-process, built from one `OcrSpec`."""
 
     __slots__ = ("_ocr", "_pdf")
 
     ##### PRIVATE #####
+
+    @staticmethod
+    def _common_kwargs(spec: OcrSpec) -> dict:
+        kwargs: dict = {
+            "ocr_language": spec.language,
+            "dpi": float(spec.dpi),
+            "skip_diagonal_text": spec.skip_diagonal_text,
+            "quiet": True,
+        }
+        if spec.tessdata_path is not None:
+            kwargs["tessdata_path"] = spec.tessdata_path
+        if spec.backend in ("tesseract", "ocria-nano"):
+            kwargs["ocr_backend"] = spec.backend
+        return kwargs
 
     @staticmethod
     def _common_text(result: liteparse.ParseResult) -> str:
@@ -42,25 +58,26 @@ class LiteparseBackend:
 
     ##### PUBLIC #####
 
-    def __init__(self, *, ocr: bool = True, language: str = "eng") -> None:
-        self._ocr = liteparse.LiteParse(ocr_enabled=True, ocr_language=language, output_format="json", quiet=True)
-        self._pdf = liteparse.LiteParse(ocr_enabled=ocr, ocr_language=language, output_format="markdown", quiet=True)
+    def __init__(self, spec: OcrSpec, *, pdf_ocr: bool = True) -> None:
+        common = self._common_kwargs(spec)
+        self._ocr = liteparse.LiteParse(ocr_enabled=True, output_format="json", **common)
+        self._pdf = liteparse.LiteParse(ocr_enabled=pdf_ocr, output_format="markdown", **common)
 
-    def recognize(self, image: bytes) -> str:
-        """The image's text, or `""` when it holds none or cannot be read."""
+    def recognize(self, image: bytes) -> Recognition:
+        """The image's text, or `""` when it holds none; a warning when reading itself failed."""
         try:
-            return self._common_text(self._ocr.parse(image))
+            return Recognition(self._common_text(self._ocr.parse(image)))
         except liteparse.ParseError as error:
             logger.debug("ocr could not read the image: %s", error)
-            return ""
+            return Recognition("", DocumentWarning("ocr_failed", str(error), "image"))
 
-    async def arecognize(self, image: bytes) -> str:
+    async def arecognize(self, image: bytes) -> Recognition:
         """`recognize`, off the event loop."""
         try:
-            return self._common_text(await self._ocr.aparse(image))
+            return Recognition(self._common_text(await self._ocr.aparse(image)))
         except liteparse.ParseError as error:
             logger.debug("ocr could not read the image: %s", error)
-            return ""
+            return Recognition("", DocumentWarning("ocr_failed", str(error), "image"))
 
     def read(self, source: str | bytes) -> Document:
         """A PDF, every page in reading order."""

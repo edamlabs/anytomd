@@ -28,7 +28,7 @@ Returns a [`Document`](#document).
 | `images` | `bool` | `False` | Return embedded images in `document.images` |
 | `comments` | `bool` | `False` | Append DOCX/PPTX comments as a `# Comments` section |
 | `strict` | `bool` | `False` | Raise on the first warning instead of collecting it |
-| `ocr` | `bool` | `True` | Read the text inside images, when `[ocr]` is installed |
+| `ocr` | `bool \| OcrSpec` | `True` | Read the text inside images, when `[ocr]` is installed; `True` reads `ANYTOMD_OCR_*`, an `OcrSpec` overrides it |
 | `vision` | `VisionSpec \| None` | `None` | Vision model for descriptions; `None` reads `ANYTOMD_VISION_*` |
 | `max_input_bytes` | `int` | 8 GiB | Largest input accepted |
 | `max_image_bytes` | `int` | 4 GiB | Budget for image bytes held in memory |
@@ -129,6 +129,7 @@ ad.convert(b"Caf\xe9", format="txt").warnings[0]
 | `code` | |
 |---|---|
 | `skipped_element` | Something was left out — e.g. a vision call failed |
+| `ocr_failed` | OCR could not read the image — e.g. the language data was missing |
 | `unsupported_feature` | A fallback was used — e.g. a text encoding |
 | `resource_limit_reached` | A limit dropped part of the output |
 | `malformed_segment` | Damaged data was repaired |
@@ -164,6 +165,45 @@ export ANYTOMD_VISION_BASE_URL=...        # optional
 ```
 
 No model configured: the vision fallback stays off, and `describe` raises `DescriptionError`.
+
+## `OcrSpec`
+
+The local text reader. `language` uses Tesseract codes; `+` combines them. Every field is also settable from the
+environment (`ANYTOMD_OCR_*`), which `ocr=True` picks up; an explicit spec wins.
+
+```python
+ad.convert("ficha.png", ocr=ad.OcrSpec(language="spa"))
+ad.convert("scan.pdf", ocr=ad.OcrSpec(language="spa+eng", dpi=200))
+```
+
+| Field | Default | |
+|---|---|---|
+| `language` | `"eng"` | Tesseract codes, `+` to combine: `"spa+eng"` |
+| `dpi` | `300` | Render resolution, 72..600; also affects scanned PDFs |
+| `backend` | `"auto"` | One of `auto`, `oar`, `tesseract`, `ocria-nano` |
+| `tessdata_path` | `None` | Directory with `*.traineddata`, for the offline machine |
+| `skip_diagonal_text` | `False` | `True` drops rotated stamps and watermarks (tesseract) |
+| `size` | `"tiny"` | oar model set: `tiny` ships in the wheel, one recognizer per script picked by `language`; `small`/`medium` are multilingual and load from disk |
+| `columns` | `True` | oar reads each row across, labels beside their values; `False` keeps detection order (oar) |
+| `threads` | `None` | ONNX Runtime intra-op threads (oar) |
+
+```bash
+export ANYTOMD_OCR_LANGUAGE=spa+eng
+export ANYTOMD_OCR_DPI=200
+export ANYTOMD_OCR_BACKEND=oar          # oar needs pip install 'anytomd[oar]'
+export ANYTOMD_OCR_MODEL_DIR=/models    # where oar finds the small/medium PP-OCRv6 files
+```
+
+`auto` prefers the Rust `oar` engine when its extra is installed and reads the language, and falls back to liteparse. A failed OCR is never
+silent: the document carries an `ocr_failed` warning naming the reason, and `strict=True` turns it into a
+`ConversionError`.
+
+What an offline machine still needs, asked without touching the network:
+
+```python
+ad.ocr_ready()                                  # gaps for the environment's spec
+ad.ocr_ready(ad.OcrSpec(language="spa"))        # -> ["tesseract languages ['spa']: ..."] on a machine without the file
+```
 
 ---
 

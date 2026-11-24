@@ -45,6 +45,7 @@ The base package has no Python dependencies. Extras add a capability, and once i
 |---|---|
 | `anytomd[pdf]` | PDF conversion |
 | `anytomd[ocr]` | The text inside images |
+| `anytomd[oar]` | The Rust OCR engine: faster, offline from the first use |
 | `anytomd[vlm]` | Image descriptions from any OpenAI-compatible vision model, and `describe` |
 | `anytomd[full]` | All of them |
 

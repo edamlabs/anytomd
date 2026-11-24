@@ -1,0 +1,23 @@
+[build-system]
+requires = ["maturin>=1.16.0"]
+build-backend = "maturin"
+
+[project]
+name = "anytomd-oar"
+version = "1.5.0"
+description = "Local Rust OCR engine for anytomd: PP-OCR through oar-ocr on ONNX Runtime, offline by default."
+readme = "README.md"
+requires-python = ">=3.12"
+license = "Apache-2.0"
+authors = [{ name = "EDamLabs" }]
+classifiers = [
+    "Programming Language :: Rust",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Text Processing :: Markup :: Markdown",
+    "Typing :: Typed",
+]
+
+[tool.maturin]
+module-name = "anytomd_oar._oar"
+python-source = "python"
+features = ["pyo3/extension-module"]

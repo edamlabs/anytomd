@@ -3,7 +3,13 @@
 from dataclasses import dataclass
 from typing import Literal
 
-type WarningCode = Literal["skipped_element", "unsupported_feature", "resource_limit_reached", "malformed_segment"]
+type WarningCode = Literal[
+    "ocr_failed",
+    "skipped_element",
+    "unsupported_feature",
+    "resource_limit_reached",
+    "malformed_segment",
+]
 
 
 @dataclass(frozen=True, slots=True)
