@@ -238,3 +238,4 @@ gha-creds-*.json
 health.md
 upstream-context/
 *.profraw
+crates/*/models/

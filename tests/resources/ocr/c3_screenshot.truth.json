@@ -1,0 +1,10 @@
+{
+  "fields": {
+    "titulo": "Quarterly Report",
+    "crecimiento": "18 percent",
+    "region": "EMEA",
+    "headcount": "42 engineers",
+    "revision": "March 14, 2027"
+  },
+  "text": "Quarterly Report\nRevenue grew by 18 percent in EMEA.\nCosts fell because the old cluster went quiet.\nHeadcount stays at 42 engineers.\nNext review: March 14, 2027."
+}

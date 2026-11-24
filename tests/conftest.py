@@ -6,6 +6,7 @@ import io
 import itertools
 import sys
 import zipfile
+from collections.abc import Iterator
 from pathlib import Path
 from typing import Final
 
@@ -167,6 +168,19 @@ def fake_vision(monkeypatch) -> FakeVision:
     return vision
 
 
+@pytest.fixture(autouse=True)
+def _isolate_engines(monkeypatch, request) -> Iterator[None]:
+    ### Unit determinism: the oar wheel exists on this machine but not in CI, and both engine caches are class-wide.
+    if request.node.get_closest_marker("integration") is None and request.node.get_closest_marker("ocr") is None:
+        monkeypatch.setitem(sys.modules, "anytomd_oar", None)
+    BackendRegistry._common_backend.cache_clear()
+    BackendRegistry._common_oar_backend.cache_clear()
+    yield
+    _ = sys.modules.pop("anytomd.backends.oar", None)
+    BackendRegistry._common_backend.cache_clear()
+    BackendRegistry._common_oar_backend.cache_clear()
+
+
 @pytest.fixture
 def missing_extra(monkeypatch):
     """Uninstaller: makes a third-party library of an extra unimportable for one test."""
@@ -175,7 +189,12 @@ def missing_extra(monkeypatch):
         monkeypatch.setitem(sys.modules, library, None)
         _ = [
             monkeypatch.delitem(sys.modules, module, raising=False)
-            for module in ("anytomd.backends.liteparse", "anytomd.backends.openai", "anytomd.config.vision")
+            for module in (
+                "anytomd.backends.liteparse",
+                "anytomd.backends.openai",
+                "anytomd.backends.oar",
+                "anytomd.config.vision",
+            )
         ]
 
     return _remove

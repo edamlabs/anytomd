@@ -1,18 +1,25 @@
 """Optional backends, loaded by name only when their extra is installed."""
 
+import functools
 import importlib
 import logging
 from types import MappingProxyType, ModuleType
-from typing import Final, NoReturn
+from typing import Final, NoReturn, Protocol
 
 from anytomd.backends.base import Describer, Reader, Recognizer
 from anytomd.infra.errors import DescriptionError, MissingExtraError
-from anytomd.infra.specs import VisionSpec
+from anytomd.infra.specs import OcrSpec, VisionSpec
 
 logger = logging.getLogger(__name__)
 
 ### Each third-party library the extras install, and the extra that installs it.
-EXTRAS: Final = MappingProxyType({"liteparse": "ocr", "openai": "vlm", "pydantic_settings": "vlm"})
+EXTRAS: Final = MappingProxyType(
+    {"liteparse": "ocr", "openai": "vlm", "pydantic_settings": "vlm", "anytomd_oar": "oar"}
+)
+
+
+class _LiteparseEngine(Recognizer, Reader, Protocol):
+    """Both ports at once: one liteparse instance recognizes images and reads PDFs."""
 
 
 class BackendRegistry:
@@ -33,25 +40,60 @@ class BackendRegistry:
                 case str() as name if name in EXTRAS:
                     logger.debug("optional backend %s unavailable: install anytomd[%s]", path, EXTRAS[name])
                     return None
+                case str() as name if name == path:
+                    ### The backend module itself is absent: an extra not built into this install (no oar wheel).
+                    logger.debug("optional backend %s unavailable: not present in this installation", path)
+                    return None
             raise
+
+    @staticmethod
+    @functools.lru_cache(maxsize=8)
+    def _common_backend(ocr: OcrSpec, *, pdf_ocr: bool) -> _LiteparseEngine | None:
+        ### One engine per spec, cached across instances and conversions: engines are heavy and hashable specs key them.
+        module = BackendRegistry._common_module("anytomd.backends.liteparse")
+        return module.LiteparseBackend(ocr, pdf_ocr=pdf_ocr) if module else None
 
     def _describer_spec(self, vision: VisionSpec | None) -> VisionSpec | None:
         settings = self._common_module("anytomd.config.vision")
         return vision or (settings.VisionSettings().spec() if settings else None)
 
+    def _recognizer_liteparse(self, ocr: OcrSpec) -> Recognizer | None:
+        return self._common_backend(ocr, pdf_ocr=True)
+
+    def _recognizer_oar(self, ocr: OcrSpec) -> Recognizer | None:
+        return self._common_oar_backend(ocr, self._oar_model_dir())
+
+    @staticmethod
+    @functools.lru_cache(maxsize=4)
+    def _common_oar_backend(ocr: OcrSpec, model_dir: str | None) -> Recognizer | None:
+        module = BackendRegistry._common_module("anytomd.backends.oar")
+        return module.OarBackend(ocr, model_dir=model_dir) if module else None
+
+    @staticmethod
+    def _oar_model_dir() -> str | None:
+        settings = BackendRegistry._common_module("anytomd.config.ocr")
+        return settings.OcrSettings.model_dir() if settings else None
+
     ############################################################
 
     ##### PUBLIC #####
 
-    def recognizer(self, *, ocr: bool) -> Recognizer | None:
-        """Local OCR, when wanted and installed."""
-        module = self._common_module("anytomd.backends.liteparse") if ocr else None
-        return module.LiteparseBackend() if module else None
+    def recognizer(self, ocr: OcrSpec | None) -> Recognizer | None:
+        """Local OCR for the spec's backend: `auto` prefers the Rust oar engine when its extra is installed."""
+        if ocr is None:
+            return None
+        match ocr.backend:
+            case "oar":
+                return self._recognizer_oar(ocr) or self.missing("OCR backend 'oar'", "oar")
+            case "auto":
+                return self._recognizer_oar(ocr) or self._recognizer_liteparse(ocr)
+            case _:
+                return self._recognizer_liteparse(ocr)
 
-    def reader(self, *, ocr: bool) -> Reader:
+    def reader(self, ocr: OcrSpec | None) -> Reader:
         """The PDF reader; raises when the `pdf` extra is missing."""
-        module = self._common_module("anytomd.backends.liteparse")
-        return module.LiteparseBackend(ocr=ocr) if module else self.missing("PDF", "pdf")
+        backend = self._common_backend(ocr or OcrSpec(), pdf_ocr=ocr is not None)
+        return backend or self.missing("PDF", "pdf")
 
     def describer(self, vision: VisionSpec | None) -> Describer | None:
         """The vision model from `vision` or `ANYTOMD_VISION_*`, when the `vlm` extra is installed and a model is set."""

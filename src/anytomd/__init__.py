@@ -16,9 +16,9 @@ from anytomd.infra.errors import (
     MissingExtraError,
     UnknownFormatError,
 )
-from anytomd.infra.specs import VisionSpec
+from anytomd.infra.specs import OcrSpec, VisionSpec
 from anytomd.infra.warnings import DocumentWarning
-from anytomd.logic.api import aconvert, adescribe, adetect, convert, describe, detect
+from anytomd.logic.api import aconvert, adescribe, adetect, convert, describe, detect, ocr_ready
 
 __version__ = version("anytomd")
 
@@ -31,6 +31,7 @@ __all__ = [
     "InputTooLargeError",
     "MalformedDocumentError",
     "MissingExtraError",
+    "OcrSpec",
     "UnknownFormatError",
     "VisionSpec",
     "__version__",
@@ -40,4 +41,5 @@ __all__ = [
     "convert",
     "describe",
     "detect",
+    "ocr_ready",
 ]

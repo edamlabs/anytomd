@@ -4,7 +4,13 @@ import os
 from collections.abc import Awaitable, Callable
 from typing import Literal
 
-type WarningCode = Literal["skipped_element", "unsupported_feature", "resource_limit_reached", "malformed_segment"]
+type WarningCode = Literal[
+    "ocr_failed",
+    "skipped_element",
+    "unsupported_feature",
+    "resource_limit_reached",
+    "malformed_segment",
+]
 type DescribeCallable = Callable[[bytes, str, str], str]
 type AsyncDescribeCallable = Callable[[bytes, str, str], Awaitable[str]]
 

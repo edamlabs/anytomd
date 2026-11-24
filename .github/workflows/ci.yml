@@ -24,6 +24,8 @@ jobs:
       - uses: taiki-e/install-action@1168f6810a3cb30a3514bf5756a3b7f0422c6df8  # v2.87.28
         with:
           tool: cargo-about
+      - name: Embedded PP-OCR files so crates/oar compiles (clippy builds the whole workspace)
+        run: python3 tools/get_oar_models.py --embedded
       - name: Same hooks as every local commit (docs build lives in its own job)
         env:
           SKIP: docs

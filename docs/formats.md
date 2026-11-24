@@ -36,6 +36,7 @@
 |---|---|---|
 | nothing | `![](image.png)` | `![](image.png)` |
 | `[ocr]` | its text | `""` |
+| `[oar]` | its text, Rust OCR | `""` |
 | `[ocr]` + `[vlm]` | its text | `Image description: A red square on white.` |
 | `[vlm]` only | `Image description: …` | `Image description: …` |
 
@@ -57,7 +58,39 @@ Inside documents, the same rule fills each image's alt text, on one line:
 
 When neither finds anything, the author's own alt text stays: `![Sales chart](chart.png)`.
 
-Vision needs a model → [VisionSpec](api.md#visionspec). Turn OCR off with `ocr=False`.
+Vision needs a model → [VisionSpec](api.md#visionspec). For OCR, `True` takes the language and DPI from the
+environment; pass an [OcrSpec](api.md#ocrspec) to choose them per call — `ad.OcrSpec(language="spa", dpi=300)` reads a
+Spanish form, `ocr=False` turns the pass off. `auto` prefers the Rust `oar` engine when `anytomd[oar]` is installed.
+
+## OCR engines
+
+Three local engines, one switch: `ocr=ad.OcrSpec(backend=...)`. The columns are the measured numbers of
+`tools/ocr_bench.py` (baseline in `docs/ocr_fidelity.json`, enforced by `make ocr`).
+
+| Engine | Install | Offline from first use | Citroën sheet, 28 key values | p50 |
+|---|---|---|---|---|
+| `tesseract` | `[ocr]` | only with the language file on disk | 15/28 (spa, 300 dpi) | 155 ms |
+| `ocria-nano` | `[ocr]` | only after pulling the model | 17/28 | 64 ms |
+| `oar` | `pip install "anytomd[oar]"` | yes: the tiny models ship inside the wheel | 17/28 (tiny) · 18/28 (small) | 23 ms (tiny) |
+
+Tesseract downloads `tessdata_best/<lang>.traineddata` from GitHub on first use. On an offline machine, keep the files
+yourself and point at them (`tessdata_path`, or `TESSDATA_PREFIX`); `anytomd.ocr_ready()` lists exactly what is still
+missing without touching the network. ocria-nano is pulled the same way:
+
+```bash
+python -c "from liteparse import models; models.pull('ocria-nano')"
+```
+
+Its weights carry a modified OpenRAIL-M license with use restrictions: measured and documented here, not the
+recommendation.
+
+oar is Rust (`anytomd_oar`, PP-OCRv6 on ONNX Runtime, Apache-2.0 weights). `size="tiny"` needs nothing: the models are
+compiled into the wheel. `small` and `medium` are three files each in `ANYTOMD_OCR_MODEL_DIR` — never downloaded at
+run time. For label–value forms, `ocr=ad.OcrSpec(backend="oar", columns=True)` reads each row across, labels and
+values together.
+
+The numbers come from `tools/ocr_bench.py` against the committed corpus; the baseline is `docs/ocr_fidelity.json`,
+enforced by `make ocr`.
 
 ## PDF
 

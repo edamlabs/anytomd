@@ -47,13 +47,26 @@ async def test_convert_pdf_input_too_large() -> None:
 
 
 async def test_convert_image_ocr_returns_its_text(path_of) -> None:
-    assert ad.convert(path_of("real_photo.png")).markdown == "This is just\nan example."
+    ### The backend is pinned to tesseract: the exact line below is what its `eng` data produces, whatever liteparse bundles by default.
+    assert (
+        ad.convert(path_of("real_photo.png"), ocr=ad.OcrSpec(dpi=150, backend="tesseract")).markdown
+        == "This is just\nan example."
+    )
 
 
-@pytest.mark.parametrize("fixture", ["shot.png", "vector.svg", "scene.heic"], ids=["letterless", "svg", "heic"])
-async def test_convert_image_without_letters_is_empty(path_of, fixture) -> None:
+async def test_convert_image_ocr_default_spec_reads_the_photo(path_of) -> None:
+    assert "This is just" in ad.convert(path_of("real_photo.png")).markdown
+
+
+@pytest.mark.parametrize(
+    ("fixture", "code"),
+    [("shot.png", None), ("vector.svg", None), ("scene.heic", "ocr_failed")],
+    ids=["letterless", "svg", "heic"],
+)
+async def test_convert_image_without_letters_is_empty(path_of, fixture, code) -> None:
     document = ad.convert(path_of(fixture))
     assert (document.markdown, document.text) == ("", "")
+    assert [w.code for w in document.warnings] == ([] if code is None else [code])
 
 
 async def test_convert_image_without_letters_falls_back_to_vision(path_of, fake_vision) -> None:
@@ -63,7 +76,10 @@ async def test_convert_image_without_letters_falls_back_to_vision(path_of, fake_
 
 
 async def test_convert_image_with_letters_never_asks_vision(path_of, fake_vision) -> None:
-    assert ad.convert(path_of("real_photo.png")).markdown == "This is just\nan example."
+    assert (
+        ad.convert(path_of("real_photo.png"), ocr=ad.OcrSpec(dpi=150, backend="tesseract")).markdown
+        == "This is just\nan example."
+    )
     assert fake_vision.calls == []
 
 
@@ -91,14 +107,15 @@ async def test_convert_image_input_too_large(path_of) -> None:
 ##### EMBEDDED IMAGES #####
 
 
-async def test_convert_embedded_image_keeps_the_author_alt(path_of) -> None:
-    document = ad.convert(path_of("report.docx"))
-    assert "![Sales chart](chart.png)" in document.markdown
+async def test_convert_embedded_image_keeps_the_author_alt(raw) -> None:
+    document = ad.convert(docx_with_images(1, descr="Sales chart", image=raw("shot.png")), format="docx")
+    assert "![Sales chart](image1.png)" in document.markdown
     assert document.warnings == ()
 
 
-async def test_convert_embedded_image_strict_empties_the_alt(path_of) -> None:
-    assert "![](chart.png)" in ad.convert(path_of("report.docx"), strict=True).markdown
+async def test_convert_embedded_image_strict_empties_the_alt(raw) -> None:
+    document = ad.convert(docx_with_images(1, descr="Sales chart", image=raw("shot.png")), format="docx", strict=True)
+    assert "![](image1.png)" in document.markdown
 
 
 async def test_convert_embedded_images_fall_back_to_vision(gallery_docx, fake_vision) -> None:
@@ -108,7 +125,9 @@ async def test_convert_embedded_images_fall_back_to_vision(gallery_docx, fake_vi
 
 
 async def test_convert_embedded_image_ocr_text_is_one_line(raw) -> None:
-    document = ad.convert(docx_with_images(1, image=raw("real_photo.png")), format="docx")
+    document = ad.convert(
+        docx_with_images(1, image=raw("real_photo.png")), format="docx", ocr=ad.OcrSpec(dpi=150, backend="tesseract")
+    )
     assert "![This is just an example.](image1.png)" in document.markdown
 
 

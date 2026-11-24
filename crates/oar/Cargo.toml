@@ -1,0 +1,17 @@
+[package]
+name = "anytomd-oar"
+description = "Local Rust OCR for anytomd: PP-OCR models through oar-ocr on ONNX Runtime, offline by default."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = false
+
+[lib]
+name = "anytomd_oar"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+image = { workspace = true }
+oar-ocr = { workspace = true }
+pyo3 = { workspace = true }

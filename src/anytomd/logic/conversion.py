@@ -34,7 +34,7 @@ class Conversion:
 
     def _common_fallback(self, describer: Describer | None) -> ImageFallback:
         return ImageFallback(
-            self._registry.recognizer(ocr=self._spec.ocr),
+            self._registry.recognizer(self._spec.ocr),
             describer,
             strict=self._spec.strict,
             concurrency=describer.concurrency if describer else DEFAULT_CONCURRENCY,
@@ -50,8 +50,12 @@ class Conversion:
         raise error
 
     @staticmethod
-    def _common_clean(document: Document) -> Document:
-        return dataclasses.replace(document, warnings=tuple(w for w in document.warnings if KEEP_ALT not in w.message))
+    def _common_clean(document: Document, collected: tuple = ()) -> Document:
+        """Keep-alt notices never reach the caller; the fallback's drained warnings join the engine's."""
+        if not collected and all(KEEP_ALT not in warning.message for warning in document.warnings):
+            return document
+        kept = tuple(w for w in (*document.warnings, *collected) if KEEP_ALT not in w.message)
+        return dataclasses.replace(document, warnings=kept)
 
     @staticmethod
     def _common_image(markdown: str, warnings: tuple) -> Document:
@@ -60,7 +64,7 @@ class Conversion:
     def _run_native(self, source: InputSource, fallback: ImageFallback) -> Document:
         hook = fallback.hook if fallback.active else None
         document = self._native.convert(source.data or source.path or b"", source.format, self._spec, hook)
-        return self._common_clean(document)
+        return self._common_clean(document, fallback.drain())
 
     def _run_image(self, source: InputSource, fallback: ImageFallback) -> Document:
         data = self._common_bounded(source).load()
@@ -71,14 +75,14 @@ class Conversion:
         )
 
     def _run_pdf(self, source: InputSource) -> Document:
-        reader = self._registry.reader(ocr=self._spec.ocr)
+        reader = self._registry.reader(self._spec.ocr)
         logger.debug("reading PDF with liteparse (ocr=%s)", self._spec.ocr)
         return reader.read(self._common_bounded(source).data or source.path or b"")
 
     async def _arun_native(self, source: InputSource, fallback: ImageFallback) -> Document:
         hook = fallback.ahook if fallback.active else None
         document = await self._native.aconvert(source.data or source.path or b"", source.format, self._spec, hook)
-        return self._common_clean(document)
+        return self._common_clean(document, fallback.drain())
 
     async def _arun_image(self, source: InputSource, fallback: ImageFallback) -> Document:
         data = await self._common_bounded(source).aload()
@@ -89,7 +93,7 @@ class Conversion:
         )
 
     async def _arun_pdf(self, source: InputSource) -> Document:
-        reader = self._registry.reader(ocr=self._spec.ocr)
+        reader = self._registry.reader(self._spec.ocr)
         logger.debug("reading PDF with liteparse (ocr=%s)", self._spec.ocr)
         return await reader.aread(self._common_bounded(source).data or source.path or b"")
 

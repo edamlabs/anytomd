@@ -12,6 +12,9 @@ test:             ## unit suite with coverage gate
 stress:           ## concurrency and volume suite only
 	uv run pytest -m stress -q -p no:randomly --timeout=300
 
+ocr:              ## OCR battery: real engines, offline proof, packaging
+	uv run pytest -m ocr -q -p no:randomly
+
 integration:      ## real vision model suite (needs ANYTOMD_VISION_*)
 	uv run pytest -m integration -q --timeout=300
 
@@ -23,6 +26,13 @@ samples:          ## regenerate synthetic test fixtures
 
 samples-real:     ## download real-world sample documents
 	uv run python tools/get_samples.py
+
+oar-models:       ## fetch the embedded PP-OCR files crates/oar compiles into the wheel
+	python3 tools/get_oar_models.py --embedded
+
+oar-build:        ## build the anytomd-oar wheel into dist-oar
+	$(MAKE) oar-models
+	uvx --from 'maturin<2' maturin build --release -m crates/oar/Cargo.toml --out dist-oar
 
 lint:             ## ruff check
 	uv run ruff check src tests tools

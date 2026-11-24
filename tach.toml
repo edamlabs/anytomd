@@ -48,12 +48,16 @@ path = "anytomd.infra.routes"
 depends_on = []
 
 [[modules]]
+path = "anytomd.config.ocr"
+depends_on = ["anytomd.infra.specs"]
+
+[[modules]]
 path = "anytomd.config.vision"
 depends_on = ["anytomd.infra.specs"]
 
 [[modules]]
 path = "anytomd.backends.base"
-depends_on = ["anytomd.infra.documents"]
+depends_on = ["anytomd.infra.documents", "anytomd.infra.warnings"]
 
 [[modules]]
 path = "anytomd.backends.native"
@@ -61,11 +65,15 @@ depends_on = ["anytomd._native", "anytomd.infra.documents", "anytomd.infra.specs
 
 [[modules]]
 path = "anytomd.backends.liteparse"
-depends_on = ["anytomd.infra.documents", "anytomd.infra.errors", "anytomd.infra.warnings"]
+depends_on = ["anytomd.backends.base", "anytomd.infra.documents", "anytomd.infra.errors", "anytomd.infra.specs", "anytomd.infra.warnings"]
 
 [[modules]]
 path = "anytomd.backends.openai"
 depends_on = ["anytomd.infra.errors", "anytomd.infra.specs"]
+
+[[modules]]
+path = "anytomd.backends.oar"
+depends_on = ["anytomd.backends.base", "anytomd.infra.specs", "anytomd.infra.warnings"]
 
 [[modules]]
 path = "anytomd.backends.registry"
@@ -84,6 +92,10 @@ path = "anytomd.logic.conversion"
 depends_on = ["anytomd.backends.base", "anytomd.backends.native", "anytomd.backends.registry", "anytomd.infra.documents", "anytomd.infra.errors", "anytomd.infra.formats", "anytomd.infra.routes", "anytomd.infra.specs", "anytomd.logic.fallback", "anytomd.logic.sources"]
 
 [[modules]]
+path = "anytomd.logic.ocrreadiness"
+depends_on = ["anytomd.backends.registry", "anytomd.config.ocr", "anytomd.infra.specs"]
+
+[[modules]]
 path = "anytomd.logic.detection"
 depends_on = ["anytomd.backends.native", "anytomd.logic.sources"]
 
@@ -93,4 +105,4 @@ depends_on = ["anytomd.backends.registry", "anytomd.infra.documents", "anytomd.i
 
 [[modules]]
 path = "anytomd.logic.api"
-depends_on = ["anytomd.infra.documents", "anytomd.infra.specs", "anytomd.logic.conversion", "anytomd.logic.description", "anytomd.logic.detection", "anytomd.logic.sources"]
+depends_on = ["anytomd.config.ocr", "anytomd.infra.documents", "anytomd.infra.specs", "anytomd.logic.conversion", "anytomd.logic.description", "anytomd.logic.detection", "anytomd.logic.ocrreadiness", "anytomd.logic.sources"]
