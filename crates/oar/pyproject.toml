@@ -5,7 +5,7 @@ build-backend = "maturin"
 [project]
 name = "anytomd-oar"
 version = "1.5.0"
-description = "Local Rust OCR engine for anytomd: PP-OCRv6 through oar-ocr on ONNX Runtime, offline by default."
+description = "Local Rust OCR engine for anytomd: PP-OCR through oar-ocr on ONNX Runtime, offline by default."
 readme = "README.md"
 requires-python = ">=3.12"
 license = "Apache-2.0"

@@ -33,6 +33,19 @@ async def test_readiness_oar_tiny_is_always_ready(readiness, oar_present) -> Non
     assert readiness.run(OcrSpec(backend="oar")) == []
 
 
+async def test_readiness_oar_tiny_without_script_is_a_gap(readiness, oar_present) -> None:
+    assert readiness.run(OcrSpec(backend="oar", language="chi_sim")) == [
+        "no embedded oar recognizer reads 'chi_sim': use size 'small' or 'medium'"
+    ]
+
+
+async def test_readiness_auto_skips_oar_for_a_script_it_cannot_read(readiness, oar_present, missing_extra) -> None:
+    missing_extra("liteparse")
+    assert readiness.run(OcrSpec(language="chi_sim")) == [
+        "the 'ocr' extra is not installed: pip install 'anytomd[ocr]'"
+    ]
+
+
 async def test_readiness_oar_small_needs_its_models_on_disk(readiness, oar_present, monkeypatch, tmp_path) -> None:
     monkeypatch.delenv("ANYTOMD_OCR_MODEL_DIR", raising=False)
     gaps = readiness.run(OcrSpec(backend="oar", size="small"))

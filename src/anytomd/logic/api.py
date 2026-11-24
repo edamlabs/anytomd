@@ -43,7 +43,14 @@ def convert(
 ) -> Document:
     """Convert a document — a path, or bytes with their `format` — to Markdown."""
     spec = ConversionSpec(
-        images, comments, strict, _ocr_spec(ocr=ocr), vision, max_input_bytes, max_image_bytes, max_zip_bytes
+        images=images,
+        comments=comments,
+        strict=strict,
+        ocr=_ocr_spec(ocr=ocr),
+        vision=vision,
+        max_input_bytes=max_input_bytes,
+        max_image_bytes=max_image_bytes,
+        max_zip_bytes=max_zip_bytes,
     )
     return Conversion(spec).run(InputSource.build(source, format))
 
@@ -63,7 +70,14 @@ async def aconvert(
 ) -> Document:
     """`convert`, off the event loop; a document's images are resolved concurrently."""
     spec = ConversionSpec(
-        images, comments, strict, _ocr_spec(ocr=ocr), vision, max_input_bytes, max_image_bytes, max_zip_bytes
+        images=images,
+        comments=comments,
+        strict=strict,
+        ocr=_ocr_spec(ocr=ocr),
+        vision=vision,
+        max_input_bytes=max_input_bytes,
+        max_image_bytes=max_image_bytes,
+        max_zip_bytes=max_zip_bytes,
     )
     return await Conversion(spec).arun(await InputSource.abuild(source, format))
 

@@ -4,7 +4,7 @@ A maturin project: the Rust crate at `crates/native` compiles to `anytomd._nativ
 
 ```text
 crates/native/src/lib.rs     the engine bridge: conversion, detection, image hooks, asyncio, error mapping
-crates/oar/src/lib.rs        the optional `anytomd-oar` engine: PP-OCRv6 through oar-ocr, ONNX Runtime
+crates/oar/src/lib.rs        the optional `anytomd-oar` engine: PP-OCR through oar-ocr, ONNX Runtime
 src/anytomd/__init__.py      the public surface: re-exports logic/api and the infra types
 src/anytomd/infra/           contracts: errors, Document, DocumentWarning, specs, formats, routes
 src/anytomd/backends/        engines: native (anytomd-rs), liteparse (PDF, OCR), oar (Rust OCR), openai (vision), registry

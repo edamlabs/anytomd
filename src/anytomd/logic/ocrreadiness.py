@@ -1,9 +1,9 @@
 """What local OCR still needs, asked without touching the network: the probe behind `anytomd.ocr_ready`."""
 
 import importlib.util
-import os
 import sys
 from pathlib import Path
+from types import MappingProxyType
 from typing import Final
 
 from anytomd.backends.registry import BackendRegistry
@@ -13,10 +13,12 @@ from anytomd.infra.specs import OcrSpec
 _TESSDATA_DIRS: Final = (".tesseract-rs/tessdata", ".local/share/liteparse/tessdata", ".cache/liteparse/tessdata")
 
 ### The files each non-embedded oar size needs in ANYTOMD_OCR_MODEL_DIR; `tiny` ships inside the wheel.
-_OAR_MODELS: Final = {
-    "small": ("pp-ocrv6_small_det.onnx", "pp-ocrv6_small_rec.onnx", "ppocrv6_dict.txt"),
-    "medium": ("pp-ocrv6_medium_det.onnx", "pp-ocrv6_medium_rec.onnx", "ppocrv6_dict.txt"),
-}
+_OAR_MODELS: Final = MappingProxyType(
+    {
+        "small": ("pp-ocrv6_small_det.onnx", "pp-ocrv6_small_rec.onnx", "ppocrv6_dict.txt"),
+        "medium": ("pp-ocrv6_medium_det.onnx", "pp-ocrv6_medium_rec.onnx", "ppocrv6_dict.txt"),
+    }
+)
 
 
 class OcrReadiness:
@@ -37,7 +39,7 @@ class OcrReadiness:
     @staticmethod
     def _run_candidate_dirs(spec: OcrSpec) -> list[Path]:
         given = [Path(spec.tessdata_path)] if spec.tessdata_path else []
-        env = [Path(value) for value in os.environ.get("TESSDATA_PREFIX", "").split(os.pathsep) if value]
+        env = [Path(value) for value in OcrSettings.tessdata_dirs()]
         home = [Path.home() / relative for relative in _TESSDATA_DIRS]
         return given + env + home
 
@@ -78,7 +80,11 @@ class OcrReadiness:
         )
 
     def _run_oar(self, spec: OcrSpec) -> list[str]:
-        gaps = self._run_extra("anytomd_oar", "oar")
+        gaps = self._run_extra("anytomd_oar", "oar") or (
+            []
+            if spec.oar_reads
+            else [f"no embedded oar recognizer reads {spec.language!r}: use size 'small' or 'medium'"]
+        )
         needed = _OAR_MODELS.get(spec.size, ())
         if gaps or not needed:
             return gaps
@@ -92,6 +98,14 @@ class OcrReadiness:
                 f"oar {spec.size} models missing from {configured or 'ANYTOMD_OCR_MODEL_DIR unset'}: place the PP-OCRv6 files there, or use size 'tiny'"
             ]
         )
+
+    def _run_auto(self, spec: OcrSpec) -> list[str]:
+        ### auto prefers oar, then liteparse with its own default backend: the probe mirrors that order.
+        if self._run_installed("anytomd_oar") and spec.oar_reads:
+            return self._run_oar(spec)
+        if not self._run_installed("liteparse"):
+            return self._run_extra("liteparse", "ocr")
+        return self._run_ocria() or self._run_tesseract(spec)
 
     ############################################################
 
@@ -108,11 +122,3 @@ class OcrReadiness:
                 return self._run_extra("liteparse", "ocr") + self._run_ocria()
             case _:
                 return self._run_auto(spec)
-
-    def _run_auto(self, spec: OcrSpec) -> list[str]:
-        ### auto prefers oar, then liteparse with its own default backend: the probe mirrors that order.
-        if self._run_installed("anytomd_oar"):
-            return self._run_oar(spec)
-        if not self._run_installed("liteparse"):
-            return self._run_extra("liteparse", "ocr")
-        return self._run_ocria() or self._run_tesseract(spec)

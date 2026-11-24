@@ -2,15 +2,15 @@
 
 ### 2026-11-24 · `auto` prefers the Rust engine; `full` stays without it
 
-**Decision.** When `anytomd-oar` is importable, the default OCR path is oar (PP-OCRv6 tiny, models inside the
-wheel); when it is not, liteparse decides (Tesseract, ocria-nano, its own order). The `oar` extra does not enter
-`full`.
+**Decision.** When `anytomd-oar` is importable and reads the language, the default OCR path is oar (tiny set,
+models inside the wheel); otherwise liteparse decides (Tesseract, ocria-nano, its own order). The `oar` extra does
+not enter `full`.
 
-**Evidence.** Bench over the corpus with the Citroën sheet: oar-tiny 17/28 at p50 23 ms, against tesseract-spa-300
-15/28 at p50 155 ms and ocria-nano 17/28 at p50 64 ms; the corpus totals are equal or better, and the wheel works
-offline from the first use, which neither liteparse engine does without a download. `full` without oar: the wheel
-weighs 23 MB per platform and adds no fidelity over what `full` already installs, and scanned PDFs go through
-liteparse anyway.
+**Evidence.** Bench over the corpus with the Citroën sheet, truth corrected against the scan: oar-tiny 26/28, against
+tesseract-spa-300 18/28 and ocria-nano 21/28; corpus totals 134 (default through oar) against 123 (ocria-nano), and
+the wheel works offline from the first use, which neither liteparse engine does without a download. `full` without
+oar: the wheel weighs 34 MB per platform, and scanned PDFs go through liteparse anyway. Revisit `full` if oar takes
+scanned PDFs.
 
 **Rejected.** oar as the only engine (PDF, DOCX images still need liteparse); ocria as the default (modified
 OpenRAIL-M license with use restrictions, needs a first pull); keeping the liteparse-only order.
@@ -22,7 +22,8 @@ for tiny, `1` for small/medium.
 
 **Evidence.** One shared session does not scale: four Python threads finish in 1.60 s, while four separate engines
 do it in 0.68 s — each ONNX session serializes its own pipeline. With the pool, four threads at one intra-op thread
-reach a 3.42× speedup over serial (P-13). A small/medium session costs around 150 MB, so its pool stays at 1.
+reached 3.42× over serial with the v6 tiny recognizer, and 2.2–2.4× with the Latin v5 one, bound by
+memory bandwidth (P-13 gates at 2.0: a held GIL gives ~1×). A small/medium session costs around 150 MB, so its pool stays at 1.
 
 **Rejected.** An engine per thread-local (doubles the memory and the cache key); parallelism only through ORT
 intra-op threads (the pipeline stages outside the session remain serialized).
@@ -39,15 +40,23 @@ malformed payloads) measures.
 **Rejected.** Rescaling large images (it requires decoding them first); relying on PIL's `Image.MAX_IMAGE_PIXELS`
 (Python never touches the pixels: the decoding is in Rust).
 
-### 2026-11-24 · No language→script mapping
+### 2026-11-24 · oar tiny reads by script: one PP-OCRv5 recognizer per alphabet
 
-**Decision.** The oar engine does not map `language` (a Tesseract code) to a script: PP-OCRv6 recognizes Latin,
-Cyrillic and Chinese with one model. `language` only affects which languages `ocr_ready()` checks in Tesseract.
+**Decision.** The embedded tiny set is the PP-OCRv6 tiny detector with the PP-OCRv5 mobile Latin and Cyrillic
+recognizers. `OcrSpec.language` (a Tesseract code) maps to the script through a bank (`OCR_SCRIPTS`); the first
+language of `"spa+eng"` decides. A language with no embedded recognizer makes `auto` fall back to liteparse and the
+explicit `oar` backend raise. This reverses the same-day decision "No language→script mapping", whose evidence was
+wrong.
 
-**Evidence.** The rus corpus reads 2/2 without a mapping (P-10 as measured); the mapping would add state with no
-demonstrated benefit. What the step actually needed was model loading from disk, and it is proven with oar-small.
+**Evidence.** Mini bench on the Citroën sheet with its truth corrected (9 of 28 fields had been mis-transcribed):
+v6 tiny 21/28, v6 small 25/28 at 31 MB, v6 medium 25/28 at 139 MB, v6 tiny det + latin v5 rec 26/28 at 9.9 MB, ocrs
+12/28. The v6 recognizers carry a CJK dictionary: `Y*B***` came out as `Y安B开研部`, and Cyrillic came out as
+Latin look-alikes (tiny) or was dropped (small, medium); the earlier "rus 2/2" counted only digits. The v5 Cyrillic
+recognizer reads the C4 sentence exactly. Cost: about 13× the CPU of v6 tiny — 1.07 s per 420 px sheet on one
+intra-op thread, 0.22 s on all cores; wheel 34 MB (cap 40). Report: `.ergon/reports/plans/bench.md`.
 
-**Rejected.** A per-backend language→script table; exposing `script` in the spec (nothing in the house uses it).
+**Rejected.** v6 tiny (fast, 21/28, ideographs in Latin text); v6 small as default (31 MB, one field fewer, same CJK
+fault); upscaling by default (±1 field, sign depends on the model); ocrs (12/28).
 
 ### 2026-10-26 · The project moves to EDamLabs
 

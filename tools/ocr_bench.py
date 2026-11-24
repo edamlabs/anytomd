@@ -42,7 +42,8 @@ class Item:
 
 
 ITEMS: Final[tuple[Item, ...]] = (
-    Item("C1", "car_sheet.png", "c1_sheet.truth.json"),
+    ### C1 truth text is a paraphrase of the scan, not a transcription: only its 28 fields are scored.
+    Item("C1", "car_sheet.png", "c1_sheet.truth.json", text_scored=False),
     Item("C2", "c2_sheet.jpg", "c2_sheet.truth.json"),
     Item("C3", "c3_screenshot.png", "c3_screenshot.truth.json"),
     Item("C4-spa", "c4_spa.png", "c4_languages.truth.json", text_scored=False),

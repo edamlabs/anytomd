@@ -1,12 +1,15 @@
 """Explicit configuration values: what the caller asks a conversion for."""
 
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from enum import StrEnum, auto
+from types import MappingProxyType
 from typing import Final, Literal
 
 DEFAULT_MAX_INPUT_BYTES: Final = 8 * 1024**3
 DEFAULT_MAX_IMAGE_BYTES: Final = 4 * 1024**3
 DEFAULT_MAX_ZIP_BYTES: Final = 16 * 1024**3
+DEFAULT_CONCURRENCY: Final = 4
 
 type OcrBackendName = Literal["auto", "tesseract", "ocria-nano", "oar"]
 type OcrModelSize = Literal["tiny", "small", "medium"]
@@ -19,16 +22,37 @@ OCR_THREADS_MIN: Final = 1
 OCR_THREADS_MAX: Final = 64
 
 
+class OcrScript(StrEnum):
+    """The alphabets the embedded oar recognizers read: one PP-OCRv5 mobile model each."""
+
+    LATIN = auto()
+    CYRILLIC = auto()
+
+
+### Tesseract codes whose alphabet an embedded recognizer covers, checked against each model's dictionary.
+OCR_SCRIPTS: Final = MappingProxyType(
+    dict.fromkeys(
+        (
+            *("afr", "cat", "ces", "cym", "dan", "deu", "eng", "est", "eus", "fin", "fra", "gle", "glg", "hrv"),
+            *("hun", "ind", "isl", "ita", "lat", "lav", "lit", "msa", "nld", "nor", "pol", "por", "ron", "slk"),
+            *("slv", "spa", "sqi", "swe", "tur"),
+        ),
+        OcrScript.LATIN,
+    )
+    | dict.fromkeys(("bel", "bul", "kaz", "mkd", "rus", "srp", "ukr"), OcrScript.CYRILLIC)
+)
+
+
 @dataclass(frozen=True, slots=True)
 class VisionSpec:
     """An OpenAI-compatible vision model: OpenAI, Anthropic, Gemini, local servers — `base_url` picks the provider."""
 
     model: str
     base_url: str | None = None
-    api_key: str | None = None
+    api_key: str | None = field(default=None, repr=False)
     prompt: str = "Describe this image concisely for use as alt text."
     max_tokens: int = 256
-    concurrency: int = 4
+    concurrency: int = DEFAULT_CONCURRENCY
 
 
 @dataclass(frozen=True, slots=True)
@@ -40,11 +64,23 @@ class OcrSpec:
     backend: OcrBackendName = "auto"
     tessdata_path: str | None = None
     skip_diagonal_text: bool = False  # drops rotated stamps and watermarks
-    size: OcrModelSize = "tiny"  # the oar engine's PP-OCRv6 model size; the other engines ignore it
+    size: OcrModelSize = (
+        "tiny"  # the oar engine's model set: tiny embedded per script, small/medium multilingual on disk
+    )
     columns: bool = False  # the oar engine groups lines into text columns; the other engines ignore it
     threads: int | None = (
         None  # the oar engine's ONNX Runtime intra-op threads; None lets ort choose; the other engines ignore it
     )
+
+    @property
+    def script(self) -> OcrScript | None:
+        """The alphabet of the first language, the one the embedded oar recognizer reads; None when no embedded model does."""
+        return OCR_SCRIPTS.get(self.language.partition("+")[0])
+
+    @property
+    def oar_reads(self) -> bool:
+        """Whether the oar engine reads this spec: tiny needs an embedded script, small and medium read every one."""
+        return self.script is not None or self.size != "tiny"
 
     def __post_init__(self) -> None:
         if not re.fullmatch(r"[a-z_]+(\+[a-z_]+)*", self.language):

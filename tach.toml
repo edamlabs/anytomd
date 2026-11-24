@@ -89,7 +89,7 @@ depends_on = ["anytomd.backends.base", "anytomd.infra.errors", "anytomd.infra.fo
 
 [[modules]]
 path = "anytomd.logic.conversion"
-depends_on = ["anytomd.backends.base", "anytomd.backends.native", "anytomd.backends.registry", "anytomd.infra.documents", "anytomd.infra.errors", "anytomd.infra.formats", "anytomd.infra.routes", "anytomd.infra.specs", "anytomd.logic.fallback", "anytomd.logic.sources"]
+depends_on = ["anytomd.backends.base", "anytomd.backends.native", "anytomd.backends.registry", "anytomd.infra.documents", "anytomd.infra.errors", "anytomd.infra.formats", "anytomd.infra.routes", "anytomd.infra.specs", "anytomd.infra.warnings", "anytomd.logic.fallback", "anytomd.logic.sources"]
 
 [[modules]]
 path = "anytomd.logic.ocrreadiness"

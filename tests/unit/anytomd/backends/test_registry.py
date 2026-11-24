@@ -103,6 +103,10 @@ async def test_registry_auto_prefers_oar_when_installed(registry, oar_installed)
     assert isinstance(registry.recognizer(OcrSpec()), oar_installed)
 
 
+async def test_registry_auto_skips_oar_for_a_script_it_cannot_read(registry, oar_installed) -> None:
+    assert type(registry.recognizer(OcrSpec(language="chi_sim"))).__name__ == "LiteparseBackend"
+
+
 async def test_registry_oar_takes_the_model_dir_from_env(registry, oar_installed, monkeypatch) -> None:
     monkeypatch.setenv("ANYTOMD_OCR_MODEL_DIR", "/models")
     assert registry.recognizer(OcrSpec(backend="oar")).model_dir == "/models"
@@ -137,7 +141,7 @@ async def test_registry_engine_cached_per_spec(registry) -> None:
 async def test_registry_engine_cache_capped(registry) -> None:
     for language in ("aa", "ab", "ac", "ad", "ae", "af", "ag", "ah", "ai"):
         registry.recognizer(OcrSpec(language=language))
-    assert BackendRegistry._common_backend.cache_info().currsize == 8
+    assert BackendRegistry._common_liteparse.cache_info().currsize == 8
 
 
 async def test_registry_module_simulating_uninstall(registry, monkeypatch) -> None:

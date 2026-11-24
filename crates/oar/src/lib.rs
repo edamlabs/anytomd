@@ -1,7 +1,9 @@
-//! The optional `anytomd[oar]` engine: local PP-OCRv6 recognition in Rust through oar-ocr,
-//! on ONNX Runtime. Models load from a directory (disk, offline) or, for tiny, from the wheel.
+//! The optional `anytomd[oar]` engine: local PP-OCR recognition in Rust through oar-ocr, on ONNX Runtime.
+//! `tiny` is embedded: the PP-OCRv6 tiny detector with the PP-OCRv5 mobile recognizer of one script.
+//! `small` and `medium` are the multilingual PP-OCRv6 sets, loaded from a directory.
 
 use std::io::Cursor;
+use std::panic::{AssertUnwindSafe, catch_unwind};
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicUsize, Ordering};
 
@@ -9,15 +11,16 @@ use image::ImageReader;
 use oar_ocr::core::{ModelSource, config::OrtSessionConfig};
 use oar_ocr::domain::tasks::TextDetectionConfig;
 use oar_ocr::oarocr::{OAROCRBuilder, PpOcrV6Size, ReadingOrder};
-use oar_ocr::prelude::{OAROCR, TextRegion};
+use oar_ocr::prelude::OAROCR;
 use pyo3::exceptions::{PyRuntimeError, PyValueError};
 use pyo3::prelude::*;
 
 const TINY_DETECTION: &[u8] = include_bytes!("../models/pp-ocrv6_tiny_det.onnx");
-const TINY_RECOGNITION: &[u8] = include_bytes!("../models/pp-ocrv6_tiny_rec.onnx");
-const TINY_DICTIONARY: &str = include_str!("../models/ppocrv6_tiny_dict.txt");
+const LATIN_RECOGNITION: &[u8] = include_bytes!("../models/latin_pp-ocrv5_mobile_rec.onnx");
+const LATIN_DICTIONARY: &str = include_str!("../models/ppocrv5_latin_dict.txt");
+const CYRILLIC_RECOGNITION: &[u8] = include_bytes!("../models/cyrillic_pp-ocrv5_mobile_rec.onnx");
+const CYRILLIC_DICTIONARY: &str = include_str!("../models/ppocrv5_cyrillic_dict.txt");
 const DOCUMENT_ORIENTATION: &[u8] = include_bytes!("../models/pp-lcnet_x1_0_doc_ori.onnx");
-const ORIENTATION_NAME: &str = "pp-lcnet_x1_0_doc_ori.onnx";
 
 // A 400 Mpx frame costs 1.2 GB decoded: decompression bombs are refused by pixels before decoding, typed as an error.
 const MAX_PIXELS: u64 = 100_000_000;
@@ -38,13 +41,20 @@ fn label_of(size: PpOcrV6Size) -> &'static str {
     }
 }
 
+// The embedded recognizer of a script: the v6 recognizers read every script with one CJK-heavy dictionary,
+// which turns Latin symbols into ideographs and Cyrillic into Latin look-alikes; one v5 model per script does not.
+fn recognizer_of(script: &str) -> PyResult<(&'static [u8], &'static str)> {
+    match script {
+        "latin" => Ok((LATIN_RECOGNITION, LATIN_DICTIONARY)),
+        "cyrillic" => Ok((CYRILLIC_RECOGNITION, CYRILLIC_DICTIONARY)),
+        other => Err(PyValueError::new_err(format!(
+            "unknown script: {other:?}, one of [\"cyrillic\", \"latin\"]"
+        ))),
+    }
+}
+
 fn names_of(size: PpOcrV6Size) -> (&'static str, &'static str, &'static str) {
     match size {
-        PpOcrV6Size::Tiny => (
-            "pp-ocrv6_tiny_det.onnx",
-            "pp-ocrv6_tiny_rec.onnx",
-            "ppocrv6_tiny_dict.txt",
-        ),
         PpOcrV6Size::Small => (
             "pp-ocrv6_small_det.onnx",
             "pp-ocrv6_small_rec.onnx",
@@ -95,47 +105,11 @@ fn decode(bytes: &[u8]) -> PyResult<image::RgbImage> {
         .map_err(|error| PyValueError::new_err(format!("image could not be decoded: {error}")))
 }
 
-fn bounds(region: &TextRegion) -> Option<(u32, u32, u32, u32)> {
-    let mut points = region.bounding_box.points.iter();
-    let first = points.next()?;
-    let mut box_bounds = (first.x, first.y, first.x, first.y);
-    for point in points {
-        box_bounds = (
-            box_bounds.0.min(point.x),
-            box_bounds.1.min(point.y),
-            box_bounds.2.max(point.x),
-            box_bounds.3.max(point.y),
-        );
-    }
-    Some((
-        box_bounds.0.max(0.) as u32,
-        box_bounds.1.max(0.) as u32,
-        box_bounds.2 as u32,
-        box_bounds.3 as u32,
-    ))
-}
-
-// One recognized line: text, confidence, and the box as x0, y0, x1, y1.
-type Line = (String, f32, u32, u32, u32, u32);
-
-fn line_of(region: &TextRegion) -> Option<Line> {
-    let text = region.text.as_ref()?;
-    let bounds = bounds(region)?;
-    Some((
-        text.to_string(),
-        region.confidence.unwrap_or(0.0),
-        bounds.0,
-        bounds.1,
-        bounds.2,
-        bounds.3,
-    ))
-}
-
 // ============================================================
 
 // PUBLIC
 
-/// A PP-OCRv6 recognizer: `recognize` returns the page's text and its mean confidence.
+/// A PP-OCR recognizer: `recognize` returns the page's text and its mean confidence.
 /// One ONNX session serializes its pipeline, so the engine holds a small pool and calls round-robin over it.
 #[pyclass(frozen)]
 pub struct OarEngine {
@@ -147,11 +121,14 @@ pub struct OarEngine {
 
 #[pymethods]
 impl OarEngine {
-    /// Build the pipeline `pool` times. Only `tiny` and orientation models are embedded: other sizes need `model_dir`.
+    /// Build the pipeline `pool` times. `tiny` and the orientation model are embedded, `script` picks tiny's
+    /// recognizer; `small` and `medium` read every script and need `model_dir`.
     #[new]
-    #[pyo3(signature = (*, size = "tiny", columns = false, orientation = true, model_dir = None, threads = None, pool = 1))]
+    #[pyo3(signature = (*, size = "tiny", script = "latin", columns = false, orientation = true, model_dir = None, threads = None, pool = 1))]
+    #[allow(clippy::too_many_arguments)]
     fn new(
         size: &str,
+        script: &str,
         columns: bool,
         orientation: bool,
         model_dir: Option<&str>,
@@ -171,8 +148,13 @@ impl OarEngine {
         let pool = pool.max(1);
         let mut sessions = Vec::with_capacity(pool);
         for _ in 0..pool {
-            let builder = match model_dir {
-                Some(dir) => {
+            let mut builder = match (size, model_dir) {
+                (PpOcrV6Size::Tiny, _) => {
+                    let (recognition, dictionary) = recognizer_of(script)?;
+                    OAROCRBuilder::new(TINY_DETECTION, recognition, "embedded")
+                        .character_dict_content(dictionary)
+                }
+                (_, Some(dir)) => {
                     let (detection, recognition, dictionary) = names_of(size);
                     let dir = PathBuf::from(dir);
                     OAROCRBuilder::new(
@@ -181,29 +163,16 @@ impl OarEngine {
                         dir.join(dictionary),
                     )
                 }
-                None if matches!(size, PpOcrV6Size::Tiny) => {
-                    OAROCRBuilder::new(TINY_DETECTION, TINY_RECOGNITION, "embedded")
-                        .character_dict_content(TINY_DICTIONARY)
-                }
-                None => {
+                (_, None) => {
                     return Err(PyValueError::new_err(
                         "only tiny models are embedded: pass model_dir",
                     ));
                 }
             };
-            let mut builder = builder;
             if orientation {
-                // The classifier is optional on disk and embedded otherwise: a missing file means no orientation pass.
-                let classifier = match model_dir {
-                    Some(dir) => {
-                        let path = PathBuf::from(dir).join(ORIENTATION_NAME);
-                        path.is_file().then_some(ModelSource::Path(path))
-                    }
-                    None => Some(ModelSource::Memory(DOCUMENT_ORIENTATION.into())),
-                };
-                if let Some(source) = classifier {
-                    builder = builder.with_document_image_orientation_classification(source);
-                }
+                builder = builder.with_document_image_orientation_classification(
+                    ModelSource::Memory(DOCUMENT_ORIENTATION.into()),
+                );
             }
             let mut builder = builder
                 .text_detection_config(detection_of(size))
@@ -221,7 +190,10 @@ impl OarEngine {
             sessions,
             next: AtomicUsize::new(0),
             size: label_of(size).to_string(),
-            source: model_dir.unwrap_or("embedded").to_string(),
+            source: match size {
+                PpOcrV6Size::Tiny => format!("embedded/{script}"),
+                _ => model_dir.unwrap_or_default().to_string(),
+            },
         })
     }
 
@@ -254,35 +226,22 @@ impl OarEngine {
         let frame = decode(image)?;
         let engine =
             &self.sessions[self.next.fetch_add(1, Ordering::Relaxed) % self.sessions.len()];
+        // A panic inside oar-ocr or ORT reaches Python as a typed RuntimeError, never as a BaseException.
         py.detach(|| {
-            let page = engine
-                .predict_with_rows(vec![frame])
-                .map_err(failure)?
-                .into_iter()
-                .next()
-                .ok_or_else(|| PyRuntimeError::new_err("the engine returned no page"))?;
-            Ok((
-                page.page.text_by_rows(&page.row_ids).map_err(failure)?,
-                page.page.average_confidence(),
-            ))
+            catch_unwind(AssertUnwindSafe(|| {
+                let page = engine
+                    .predict_with_rows(vec![frame])
+                    .map_err(failure)?
+                    .into_iter()
+                    .next()
+                    .ok_or_else(|| PyRuntimeError::new_err("the engine returned no page"))?;
+                Ok((
+                    page.page.text_by_rows(&page.row_ids).map_err(failure)?,
+                    page.page.average_confidence(),
+                ))
+            }))
+            .unwrap_or_else(|_| Err(PyRuntimeError::new_err("the OCR engine panicked")))
         })
-    }
-
-    /// Every recognized line: text, confidence and box, in geometric detection order.
-    fn lines<'py>(&self, py: Python<'py>, image: &[u8]) -> PyResult<Vec<Line>> {
-        let frame = decode(image)?;
-        let engine =
-            &self.sessions[self.next.fetch_add(1, Ordering::Relaxed) % self.sessions.len()];
-        let pages = py.detach(|| engine.predict(vec![frame]).map_err(failure))?;
-        Ok(pages
-            .into_iter()
-            .flat_map(|page| {
-                page.text_regions
-                    .iter()
-                    .filter_map(line_of)
-                    .collect::<Vec<_>>()
-            })
-            .collect())
     }
 }
 

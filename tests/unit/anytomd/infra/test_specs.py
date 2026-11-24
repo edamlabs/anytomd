@@ -6,6 +6,7 @@ from anytomd.infra.specs import (
     OCR_BACKENDS,
     OCR_SIZES,
     ConversionSpec,
+    OcrScript,
     OcrSpec,
     VisionSpec,
     as_backend_name,
@@ -95,3 +96,29 @@ async def test_specs_as_narrowing_rejects_outside_the_bank() -> None:
     for bad in ("huge", "", "Tiny"):
         with pytest.raises(ValueError, match="invalid OCR model size"):
             as_model_size(bad)
+
+
+@pytest.mark.parametrize(
+    ("language", "script"),
+    [
+        ("eng", OcrScript.LATIN),
+        ("spa+eng", OcrScript.LATIN),
+        ("rus", OcrScript.CYRILLIC),
+        ("ukr+eng", OcrScript.CYRILLIC),
+        ("chi_sim", None),
+    ],
+)
+async def test_specs_ocr_script_of_the_first_language(language, script) -> None:
+    assert OcrSpec(language=language).script is script
+
+
+@pytest.mark.parametrize(
+    ("language", "size", "reads"),
+    [("eng", "tiny", True), ("chi_sim", "tiny", False), ("chi_sim", "small", True), ("chi_sim", "medium", True)],
+)
+async def test_specs_ocr_oar_reads(language, size, reads) -> None:
+    assert OcrSpec(language=language, size=size).oar_reads is reads
+
+
+async def test_specs_vision_api_key_stays_out_of_repr() -> None:
+    assert "sk-secret" not in repr(VisionSpec(model="m", api_key="sk-secret"))

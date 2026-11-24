@@ -3,6 +3,7 @@
 import dataclasses
 import logging
 from contextlib import nullcontext
+from typing import NoReturn
 
 from anytomd.backends.base import Describer
 from anytomd.backends.native import NativeBackend
@@ -11,13 +12,12 @@ from anytomd.infra.documents import Document
 from anytomd.infra.errors import InputTooLargeError
 from anytomd.infra.formats import IMAGE_MIMES, PDF
 from anytomd.infra.routes import Route
-from anytomd.infra.specs import ConversionSpec
+from anytomd.infra.specs import DEFAULT_CONCURRENCY, ConversionSpec
+from anytomd.infra.warnings import DocumentWarning
 from anytomd.logic.fallback import KEEP_ALT, ImageFallback
 from anytomd.logic.sources import InputSource
 
 logger = logging.getLogger(__name__)
-
-DEFAULT_CONCURRENCY = 4
 
 
 class Conversion:
@@ -46,11 +46,11 @@ class Conversion:
         return source if size <= limit else self._common_raise(InputTooLargeError(msg, size, limit))
 
     @staticmethod
-    def _common_raise(error: Exception) -> InputSource:
+    def _common_raise(error: Exception) -> NoReturn:
         raise error
 
     @staticmethod
-    def _common_clean(document: Document, collected: tuple = ()) -> Document:
+    def _common_clean(document: Document, collected: tuple[DocumentWarning, ...] = ()) -> Document:
         """Keep-alt notices never reach the caller; the fallback's drained warnings join the engine's."""
         if not collected and all(KEEP_ALT not in warning.message for warning in document.warnings):
             return document
@@ -58,7 +58,7 @@ class Conversion:
         return dataclasses.replace(document, warnings=kept)
 
     @staticmethod
-    def _common_image(markdown: str, warnings: tuple) -> Document:
+    def _common_image(markdown: str, warnings: tuple[DocumentWarning, ...]) -> Document:
         return Document(markdown=markdown, text=markdown, warnings=warnings)
 
     def _run_native(self, source: InputSource, fallback: ImageFallback) -> Document:

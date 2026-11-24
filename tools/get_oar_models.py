@@ -1,6 +1,6 @@
 """Fetch the PP-OCR model files for `crates/oar` from pinned release URLs, verified by SHA-256.
 
-The four embedded files (tiny det/rec/dict + orientation) are needed to build the `anytomd-oar` wheel;
+The six embedded files (v6 tiny det, latin and cyrillic v5 rec + dicts, orientation) are needed to build the `anytomd-oar` wheel;
 `--embedded` fetches only those. The small/medium sets are for a runtime `model_dir` — the engine never
 downloads anything itself.
 
@@ -38,11 +38,23 @@ MODELS: dict[str, Model] = {
     "pp-ocrv6_tiny_det.onnx": Model(
         f"{V6}/pp-ocrv6_tiny_det.onnx", "193bab7a04fca699a6c82e6abb5b81bdb28177f0abd4062552b04908dafb19f8", Kind.WHEEL
     ),
-    "pp-ocrv6_tiny_rec.onnx": Model(
-        f"{V6}/pp-ocrv6_tiny_rec.onnx", "9ef676d6ed3c88256a2d92c640c44f25b0c40947e111b14b8be8f594091563e6", Kind.WHEEL
+    "latin_pp-ocrv5_mobile_rec.onnx": Model(
+        f"{V3}/latin_pp-ocrv5_mobile_rec.onnx",
+        "e3a6bfeea1c8a01d6fccfd480a0bd363fd907f8c65931e228bb2736f5c3e142f",
+        Kind.WHEEL,
     ),
-    "ppocrv6_tiny_dict.txt": Model(
-        f"{V6}/ppocrv6_tiny_dict.txt", "c5cbe34ef40c29c4df07ed012bf96569cb69a2d2a01a07027e9f13cb832bd9cd", Kind.WHEEL
+    "ppocrv5_latin_dict.txt": Model(
+        f"{V3}/ppocrv5_latin_dict.txt", "ccbcc45730b3fbbd9050c5bc74db6a99067141ef1035e3d14889a84a6b9b1aff", Kind.WHEEL
+    ),
+    "cyrillic_pp-ocrv5_mobile_rec.onnx": Model(
+        f"{V3}/cyrillic_pp-ocrv5_mobile_rec.onnx",
+        "a18d96d7c8d73d90f2ed056549caa1de3a8e6cb744cccba16cd593ea8cd2d569",
+        Kind.WHEEL,
+    ),
+    "ppocrv5_cyrillic_dict.txt": Model(
+        f"{V3}/ppocrv5_cyrillic_dict.txt",
+        "db40aa52ceb112055be80c694afdf655d5d2c4f7873704524cc16a447ca913ba",
+        Kind.WHEEL,
     ),
     "pp-lcnet_x1_0_doc_ori.onnx": Model(
         f"{V3}/pp-lcnet_x1_0_doc_ori.onnx",
@@ -87,7 +99,7 @@ def _main_fetch(name: str, model: Model) -> str:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--embedded", action="store_true", help="only the four files the wheel embeds")
+    parser.add_argument("--embedded", action="store_true", help="only the six files the wheel embeds")
     arguments = parser.parse_args()
     ROOT.mkdir(parents=True, exist_ok=True)
     wanted = {name: model for name, model in MODELS.items() if not arguments.embedded or model.kind == Kind.WHEEL}

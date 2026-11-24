@@ -69,9 +69,9 @@ Three local engines, one switch: `ocr=ad.OcrSpec(backend=...)`. The columns are 
 
 | Engine | Install | Offline from first use | Citroën sheet, 28 key values | p50 |
 |---|---|---|---|---|
-| `tesseract` | `[ocr]` | only with the language file on disk | 15/28 (spa, 300 dpi) | 155 ms |
-| `ocria-nano` | `[ocr]` | only after pulling the model | 17/28 | 64 ms |
-| `oar` | `pip install "anytomd[oar]"` | yes: the tiny models ship inside the wheel | 17/28 (tiny) · 18/28 (small) | 23 ms (tiny) |
+| `tesseract` | `[ocr]` | only with the language file on disk | 18/28 (spa, 300 dpi) | 145 ms |
+| `ocria-nano` | `[ocr]` | only after pulling the model | 21/28 | 63 ms |
+| `oar` | `pip install "anytomd[oar]"` | yes: the tiny models ship inside the wheel | 26/28 (tiny) · 25/28 (small) | 66 ms (tiny) |
 
 Tesseract downloads `tessdata_best/<lang>.traineddata` from GitHub on first use. On an offline machine, keep the files
 yourself and point at them (`tessdata_path`, or `TESSDATA_PREFIX`); `anytomd.ocr_ready()` lists exactly what is still
@@ -84,9 +84,13 @@ python -c "from liteparse import models; models.pull('ocria-nano')"
 Its weights carry a modified OpenRAIL-M license with use restrictions: measured and documented here, not the
 recommendation.
 
-oar is Rust (`anytomd_oar`, PP-OCRv6 on ONNX Runtime, Apache-2.0 weights). `size="tiny"` needs nothing: the models are
-compiled into the wheel. `small` and `medium` are three files each in `ANYTOMD_OCR_MODEL_DIR` — never downloaded at
-run time. For label–value forms, `ocr=ad.OcrSpec(backend="oar", columns=True)` reads each row across, labels and
+oar is Rust (`anytomd_oar`, PP-OCR on ONNX Runtime, Apache-2.0 weights). `size="tiny"` needs nothing: the PP-OCRv6
+tiny detector and one PP-OCRv5 recognizer per script are compiled into the wheel, and `language` picks the script —
+Latin for `eng`, `spa`, `fra`, `deu` and 29 more, Cyrillic for `rus`, `ukr`, `bel`, `bul`, `srp`, `mkd`, `kaz`; with
+`"spa+eng"` the first language decides. A language no embedded recognizer reads (`chi_sim`) sends `auto` to liteparse;
+`small` and `medium` are the multilingual PP-OCRv6 sets, three files each in `ANYTOMD_OCR_MODEL_DIR` — never downloaded
+at run time. The tiny set is accuracy first: about 0.2 s per scanned page on all cores, about 1 s on one
+(`threads=1`). For label–value forms, `ocr=ad.OcrSpec(backend="oar", columns=True)` reads each row across, labels and
 values together.
 
 The numbers come from `tools/ocr_bench.py` against the committed corpus; the baseline is `docs/ocr_fidelity.json`,

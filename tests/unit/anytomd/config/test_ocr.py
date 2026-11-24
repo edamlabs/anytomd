@@ -1,5 +1,7 @@
 """OcrSettings: the environment refines the spec, nothing more."""
 
+import os
+
 import pytest
 
 from anytomd.config.ocr import OcrSettings
@@ -58,3 +60,13 @@ async def test_ocr_settings_model_dir(monkeypatch) -> None:
     monkeypatch.setenv("ANYTOMD_OCR_MODEL_DIR", "")
     assert OcrSettings.model_dir() is None
     assert OcrSettings.model_dir({"ANYTOMD_OCR_MODEL_DIR": "/models"}) == "/models"
+
+
+@pytest.mark.parametrize("variable", ["ANYTOMD_OCR_DPI", "ANYTOMD_OCR_THREADS"])
+async def test_ocr_settings_bad_integer_names_its_variable(variable) -> None:
+    with pytest.raises(ValueError, match=variable):
+        OcrSettings.from_env({variable: "many"})
+
+
+async def test_ocr_settings_tessdata_dirs_split_the_prefix() -> None:
+    assert OcrSettings.tessdata_dirs({"TESSDATA_PREFIX": f"/a{os.pathsep}{os.pathsep}/b"}) == ["/a", "/b"]

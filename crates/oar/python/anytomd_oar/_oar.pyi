@@ -3,12 +3,13 @@
 from typing import Literal
 
 class OarEngine:
-    """A PP-OCRv6 recognizer: offline models from `model_dir`, or the embedded tiny ones."""
+    """A PP-OCR recognizer: tiny embedded per script, small/medium multilingual from `model_dir`."""
 
     def __init__(
         self,
         *,
         size: Literal["tiny", "small", "medium"] = "tiny",
+        script: str = "latin",
         columns: bool = False,
         orientation: bool = True,
         model_dir: str | None = None,
@@ -22,4 +23,3 @@ class OarEngine:
     @property
     def pool(self) -> int: ...
     def recognize(self, image: bytes) -> tuple[str, float | None]: ...
-    def lines(self, image: bytes) -> list[tuple[str, float, int, int, int, int]]: ...

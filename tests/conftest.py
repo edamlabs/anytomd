@@ -173,12 +173,12 @@ def _isolate_engines(monkeypatch, request) -> Iterator[None]:
     ### Unit determinism: the oar wheel exists on this machine but not in CI, and both engine caches are class-wide.
     if request.node.get_closest_marker("integration") is None and request.node.get_closest_marker("ocr") is None:
         monkeypatch.setitem(sys.modules, "anytomd_oar", None)
-    BackendRegistry._common_backend.cache_clear()
-    BackendRegistry._common_oar_backend.cache_clear()
+    BackendRegistry._common_liteparse.cache_clear()
+    BackendRegistry._common_oar.cache_clear()
     yield
     _ = sys.modules.pop("anytomd.backends.oar", None)
-    BackendRegistry._common_backend.cache_clear()
-    BackendRegistry._common_oar_backend.cache_clear()
+    BackendRegistry._common_liteparse.cache_clear()
+    BackendRegistry._common_oar.cache_clear()
 
 
 @pytest.fixture

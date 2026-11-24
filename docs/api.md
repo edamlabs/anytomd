@@ -183,7 +183,7 @@ ad.convert("scan.pdf", ocr=ad.OcrSpec(language="spa+eng", dpi=200))
 | `backend` | `"auto"` | One of `auto`, `oar`, `tesseract`, `ocria-nano` |
 | `tessdata_path` | `None` | Directory with `*.traineddata`, for the offline machine |
 | `skip_diagonal_text` | `False` | `True` drops rotated stamps and watermarks (tesseract) |
-| `size` | `"tiny"` | oar model size: `tiny` ships in the wheel; `small`/`medium` load from disk |
+| `size` | `"tiny"` | oar model set: `tiny` ships in the wheel, one recognizer per script picked by `language`; `small`/`medium` are multilingual and load from disk |
 | `columns` | `False` | oar reads label–value forms row by row (oar) |
 | `threads` | `None` | ONNX Runtime intra-op threads (oar) |
 
@@ -194,7 +194,7 @@ export ANYTOMD_OCR_BACKEND=oar          # oar needs pip install 'anytomd[oar]'
 export ANYTOMD_OCR_MODEL_DIR=/models    # where oar finds the small/medium PP-OCRv6 files
 ```
 
-`auto` prefers the Rust `oar` engine when its extra is installed, and falls back to liteparse. A failed OCR is never
+`auto` prefers the Rust `oar` engine when its extra is installed and reads the language, and falls back to liteparse. A failed OCR is never
 silent: the document carries an `ocr_failed` warning naming the reason, and `strict=True` turns it into a
 `ConversionError`.
 

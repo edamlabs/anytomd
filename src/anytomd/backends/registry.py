@@ -48,7 +48,7 @@ class BackendRegistry:
 
     @staticmethod
     @functools.lru_cache(maxsize=8)
-    def _common_backend(ocr: OcrSpec, *, pdf_ocr: bool) -> _LiteparseEngine | None:
+    def _common_liteparse(ocr: OcrSpec, *, pdf_ocr: bool) -> _LiteparseEngine | None:
         ### One engine per spec, cached across instances and conversions: engines are heavy and hashable specs key them.
         module = BackendRegistry._common_module("anytomd.backends.liteparse")
         return module.LiteparseBackend(ocr, pdf_ocr=pdf_ocr) if module else None
@@ -58,14 +58,14 @@ class BackendRegistry:
         return vision or (settings.VisionSettings().spec() if settings else None)
 
     def _recognizer_liteparse(self, ocr: OcrSpec) -> Recognizer | None:
-        return self._common_backend(ocr, pdf_ocr=True)
+        return self._common_liteparse(ocr, pdf_ocr=True)
 
     def _recognizer_oar(self, ocr: OcrSpec) -> Recognizer | None:
-        return self._common_oar_backend(ocr, self._oar_model_dir())
+        return self._common_oar(ocr, self._oar_model_dir())
 
     @staticmethod
     @functools.lru_cache(maxsize=4)
-    def _common_oar_backend(ocr: OcrSpec, model_dir: str | None) -> Recognizer | None:
+    def _common_oar(ocr: OcrSpec, model_dir: str | None) -> Recognizer | None:
         module = BackendRegistry._common_module("anytomd.backends.oar")
         return module.OarBackend(ocr, model_dir=model_dir) if module else None
 
@@ -79,20 +79,21 @@ class BackendRegistry:
     ##### PUBLIC #####
 
     def recognizer(self, ocr: OcrSpec | None) -> Recognizer | None:
-        """Local OCR for the spec's backend: `auto` prefers the Rust oar engine when its extra is installed."""
+        """Local OCR for the spec's backend: `auto` prefers the Rust oar engine when installed and able to read the language."""
         if ocr is None:
             return None
         match ocr.backend:
             case "oar":
                 return self._recognizer_oar(ocr) or self.missing("OCR backend 'oar'", "oar")
             case "auto":
-                return self._recognizer_oar(ocr) or self._recognizer_liteparse(ocr)
+                ### oar first when it reads the language; a script no embedded model reads goes to liteparse.
+                return (self._recognizer_oar(ocr) if ocr.oar_reads else None) or self._recognizer_liteparse(ocr)
             case _:
                 return self._recognizer_liteparse(ocr)
 
     def reader(self, ocr: OcrSpec | None) -> Reader:
         """The PDF reader; raises when the `pdf` extra is missing."""
-        backend = self._common_backend(ocr or OcrSpec(), pdf_ocr=ocr is not None)
+        backend = self._common_liteparse(ocr or OcrSpec(), pdf_ocr=ocr is not None)
         return backend or self.missing("PDF", "pdf")
 
     def describer(self, vision: VisionSpec | None) -> Describer | None:
