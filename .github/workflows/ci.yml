@@ -138,6 +138,8 @@ jobs:
         with:
           persist-credentials: false
       - uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4  # v10.1.0
+      - name: Embedded PP-OCR files (compiled into the extension; sha-pinned, never fetched at run time)
+        run: uv run --no-project --python 3.12 tools/get_oar_models.py --embedded
       - name: Strict build (fails on broken links or missing assets)
         run: |
           uv sync --group docs --no-install-project
