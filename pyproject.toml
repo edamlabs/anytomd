@@ -121,6 +121,8 @@ ban-relative-imports = "all"
 
 [tool.ty.environment]
 python-version = "3.12"
+### The optional oar package is not installed in CI: its source and stubs resolve the import.
+extra-paths = ["crates/oar/python"]
 
 [tool.ty.src]
 include = ["src", "tests", "tools"]

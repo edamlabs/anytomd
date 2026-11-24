@@ -14,7 +14,7 @@ trap 'cargo clean -p anytomd-native; uv run --no-sync maturin develop -q' EXIT
     export CARGO_TARGET_DIR="$CARGO_LLVM_COV_TARGET_DIR"
     cargo llvm-cov clean -p anytomd-native
     uv run --no-sync maturin develop -q
-    uv run --no-sync pytest -m "not integration" -q -p no:randomly --timeout=300
+    uv run --no-sync pytest -m "not integration and not ocr" -q -p no:randomly --timeout=300
     cargo llvm-cov report -p anytomd-native --lcov --output-path coverage.lcov
     cargo llvm-cov report -p anytomd-native --summary-only --fail-under-lines "$THRESHOLD"
 )
