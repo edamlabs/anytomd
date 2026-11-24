@@ -64,6 +64,21 @@
       "automerge": false
     },
     {
+      "description": "The OCR engine: oar-ocr pins ort exactly, so both move in one PR, never on their own.",
+      "matchManagers": [
+        "cargo"
+      ],
+      "matchPackageNames": [
+        "oar-ocr",
+        "ort"
+      ],
+      "groupName": "ocr engine",
+      "labels": [
+        "binding-update"
+      ],
+      "automerge": false
+    },
+    {
       "description": "Python tooling (dependency groups and the build backend): one weekly PR, merges itself on green.",
       "matchManagers": [
         "pep621"

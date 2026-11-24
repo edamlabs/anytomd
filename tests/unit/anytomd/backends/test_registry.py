@@ -1,8 +1,5 @@
 """BackendRegistry: optional backends resolve when installed, vanish cleanly when not, one engine per spec."""
 
-import sys
-import types
-
 import pytest
 
 from anytomd.backends.registry import BackendRegistry
@@ -87,19 +84,19 @@ async def test_registry_unrelated_import_errors_propagate(registry, monkeypatch)
 
 @pytest.fixture
 def oar_installed(monkeypatch) -> object:
-    """A stand-in oar backend module, as if the extra were installed."""
-    module = types.ModuleType("anytomd.backends.oar")
+    """A stand-in oar backend on a wheel that carries the engine."""
 
     class OarBackend:
+        available = True
+
         def __init__(self, spec: OcrSpec, model_dir: str | None = None) -> None:
             self.spec, self.model_dir = spec, model_dir
 
-    module.__dict__["OarBackend"] = OarBackend
-    monkeypatch.setitem(sys.modules, "anytomd.backends.oar", module)
+    monkeypatch.setattr("anytomd.backends.registry.OarBackend", OarBackend)
     return OarBackend
 
 
-async def test_registry_auto_prefers_oar_when_installed(registry, oar_installed) -> None:
+async def test_registry_auto_prefers_oar_when_built(registry, oar_installed) -> None:
     assert isinstance(registry.recognizer(OcrSpec()), oar_installed)
 
 
@@ -112,14 +109,12 @@ async def test_registry_oar_takes_the_model_dir_from_env(registry, oar_installed
     assert registry.recognizer(OcrSpec(backend="oar")).model_dir == "/models"
 
 
-async def test_registry_auto_falls_back_to_liteparse(registry, missing_extra) -> None:
-    missing_extra("anytomd_oar")
+async def test_registry_auto_falls_back_to_liteparse_without_the_engine(registry) -> None:
     assert type(registry.recognizer(OcrSpec())).__name__ == "LiteparseBackend"
 
 
-async def test_registry_oar_without_the_extra_names_it(registry, missing_extra) -> None:
-    missing_extra("anytomd_oar")
-    with pytest.raises(MissingExtraError, match=r"anytomd\[oar\]"):
+async def test_registry_oar_without_the_engine_names_the_platform(registry) -> None:
+    with pytest.raises(ValueError, match="not built for this platform"):
         registry.recognizer(OcrSpec(backend="oar"))
 
 
@@ -142,10 +137,3 @@ async def test_registry_engine_cache_capped(registry) -> None:
     for language in ("aa", "ab", "ac", "ad", "ae", "af", "ag", "ah", "ai"):
         registry.recognizer(OcrSpec(language=language))
     assert BackendRegistry._common_liteparse.cache_info().currsize == 8
-
-
-async def test_registry_module_simulating_uninstall(registry, monkeypatch) -> None:
-    ### A None entry makes the import raise with the path as name: the wheel is simply not here, not an import bug.
-    monkeypatch.setitem(sys.modules, "anytomd_oar", types.ModuleType("anytomd_oar"))
-    monkeypatch.setitem(sys.modules, "anytomd_oar._oar", None)
-    assert registry._common_module("anytomd_oar._oar") is None

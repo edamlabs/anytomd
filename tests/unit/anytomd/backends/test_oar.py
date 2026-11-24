@@ -1,17 +1,17 @@
 """OarBackend: the spec reaches the native engine, a read returns text, a failure warns instead of passing for blank."""
 
 import importlib
-import sys
 import types
 
 import pytest
 
+from anytomd import _native
 from anytomd.infra.specs import OcrSpec
 
 
 @pytest.fixture
 def oar(monkeypatch) -> types.ModuleType:
-    """The real backend module imported against a scripted native engine."""
+    """The real backend module over a scripted native engine: no ONNX session in a unit."""
 
     class OarEngine:
         def __init__(
@@ -25,10 +25,7 @@ def oar(monkeypatch) -> types.ModuleType:
                 raise self.error
             return self.text, self.confidence
 
-    module = types.ModuleType("anytomd_oar")
-    module.__dict__["OarEngine"] = OarEngine
-    monkeypatch.setitem(sys.modules, "anytomd_oar", module)
-    monkeypatch.delitem(sys.modules, "anytomd.backends.oar", raising=False)
+    monkeypatch.setattr(_native, "OarEngine", OarEngine, raising=False)
     return importlib.import_module("anytomd.backends.oar")
 
 

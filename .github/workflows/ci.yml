@@ -24,8 +24,8 @@ jobs:
       - uses: taiki-e/install-action@1168f6810a3cb30a3514bf5756a3b7f0422c6df8  # v2.87.28
         with:
           tool: cargo-about
-      - name: Embedded PP-OCR files so crates/oar compiles (clippy builds the whole workspace)
-        run: python3 tools/get_oar_models.py --embedded
+      - name: Embedded PP-OCR files (compiled into the extension; sha-pinned, never fetched at run time)
+        run: uv run --no-project --python 3.12 tools/get_oar_models.py --embedded
       - name: Same hooks as every local commit (docs build lives in its own job)
         env:
           SKIP: docs
@@ -52,6 +52,8 @@ jobs:
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6  # v2.9.2
         with:
           save-if: ${{ github.ref == 'refs/heads/main' }}
+      - name: Embedded PP-OCR files (compiled into the extension; sha-pinned, never fetched at run time)
+        run: uv run --no-project --python 3.12 tools/get_oar_models.py --embedded
       - name: Build + tests (logged for the maintenance agent)
         env:
           PYTHON: ${{ matrix.python }}
@@ -80,6 +82,8 @@ jobs:
       - uses: taiki-e/install-action@1168f6810a3cb30a3514bf5756a3b7f0422c6df8  # v2.87.28
         with:
           tool: cargo-llvm-cov
+      - name: Embedded PP-OCR files (compiled into the extension; sha-pinned, never fetched at run time)
+        run: uv run --no-project --python 3.12 tools/get_oar_models.py --embedded
       - name: Line coverage of crates/native driven by the Python suite
         run: |
           rustup component add llvm-tools-preview
@@ -134,6 +138,8 @@ jobs:
         with:
           persist-credentials: false
       - uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4  # v10.1.0
+      - name: Embedded PP-OCR files (compiled into the extension; sha-pinned, never fetched at run time)
+        run: uv run --no-project --python 3.12 tools/get_oar_models.py --embedded
       - name: Strict build (fails on broken links or missing assets)
         run: |
           uv sync --group docs --no-install-project

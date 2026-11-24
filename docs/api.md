@@ -190,11 +190,11 @@ ad.convert("scan.pdf", ocr=ad.OcrSpec(language="spa+eng", dpi=200))
 ```bash
 export ANYTOMD_OCR_LANGUAGE=spa+eng
 export ANYTOMD_OCR_DPI=200
-export ANYTOMD_OCR_BACKEND=oar          # oar needs pip install 'anytomd[oar]'
+export ANYTOMD_OCR_BACKEND=oar          # the built-in Rust engine
 export ANYTOMD_OCR_MODEL_DIR=/models    # where oar finds the small/medium PP-OCRv6 files
 ```
 
-`auto` prefers the Rust `oar` engine when its extra is installed and reads the language, and falls back to liteparse. A failed OCR is never
+`auto` uses the built-in Rust `oar` engine when it reads the language, and falls back to liteparse. A failed OCR is never
 silent: the document carries an `ocr_failed` warning naming the reason, and `strict=True` turns it into a
 `ConversionError`.
 

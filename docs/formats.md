@@ -34,11 +34,11 @@
 
 | Installed | An image with text | An image without text |
 |---|---|---|
-| nothing | `![](image.png)` | `![](image.png)` |
-| `[ocr]` | its text | `""` |
-| `[oar]` | its text, Rust OCR | `""` |
-| `[ocr]` + `[vlm]` | its text | `Image description: A red square on white.` |
-| `[vlm]` only | `Image description: …` | `Image description: …` |
+| nothing | its text | `""` |
+| `[vlm]` | its text | `Image description: A red square on white.` |
+
+Intel macOS has no ONNX Runtime build, so its wheel carries no Rust OCR: there, `[ocr]` reads the text. AVIF, HEIC and
+SVG are not decoded by the Rust engine: the image keeps its alt text and the document carries an `ocr_failed` warning.
 
 OCR always goes first: it is local, free and exact. The vision model is asked only when OCR finds no letters, and its answer is always labeled `Image description:`, so you can tell it from text that was really in the image.
 
@@ -60,7 +60,7 @@ When neither finds anything, the author's own alt text stays: `![Sales chart](ch
 
 Vision needs a model → [VisionSpec](api.md#visionspec). For OCR, `True` takes the language and DPI from the
 environment; pass an [OcrSpec](api.md#ocrspec) to choose them per call — `ad.OcrSpec(language="spa", dpi=300)` reads a
-Spanish form, `ocr=False` turns the pass off. `auto` prefers the Rust `oar` engine when `anytomd[oar]` is installed.
+Spanish form, `ocr=False` turns the pass off. `auto` uses the built-in Rust `oar` engine when it reads the language, liteparse otherwise.
 
 ## OCR engines
 
@@ -71,7 +71,7 @@ Three local engines, one switch: `ocr=ad.OcrSpec(backend=...)`. The columns are 
 |---|---|---|---|---|
 | `tesseract` | `[ocr]` | only with the language file on disk | 18/28 (spa, 300 dpi) | 145 ms |
 | `ocria-nano` | `[ocr]` | only after pulling the model | 21/28 | 63 ms |
-| `oar` | `pip install "anytomd[oar]"` | yes: the tiny models ship inside the wheel | 26/28 (tiny) · 25/28 (small) | 66 ms (tiny) |
+| `oar` | built in | yes: the tiny models ship inside the wheel | 26/28 (tiny) · 25/28 (small) | 66 ms (tiny) |
 
 Tesseract downloads `tessdata_best/<lang>.traineddata` from GitHub on first use. On an offline machine, keep the files
 yourself and point at them (`tessdata_path`, or `TESSDATA_PREFIX`); `anytomd.ocr_ready()` lists exactly what is still
@@ -84,7 +84,7 @@ python -c "from liteparse import models; models.pull('ocria-nano')"
 Its weights carry a modified OpenRAIL-M license with use restrictions: measured and documented here, not the
 recommendation.
 
-oar is Rust (`anytomd_oar`, PP-OCR on ONNX Runtime, Apache-2.0 weights). `size="tiny"` needs nothing: the PP-OCRv6
+oar is Rust (PP-OCR on ONNX Runtime through oar-ocr, linked into `anytomd._native`; Apache-2.0 weights). `size="tiny"` needs nothing: the PP-OCRv6
 tiny detector and one PP-OCRv5 recognizer per script are compiled into the wheel, and `language` picks the script —
 Latin for `eng`, `spa`, `fra`, `deu` and 29 more, Cyrillic for `rus`, `ukr`, `bel`, `bul`, `srp`, `mkd`, `kaz`; with
 `"spa+eng"` the first language decides. A language no embedded recognizer reads (`chi_sim`) sends `auto` to liteparse;

@@ -4,7 +4,6 @@ Every test here loads real engines; none touches the network on purpose: oar mod
 and the one offline proof (P-15) runs inside a network-isolated `unshare` namespace when the machine allows it.
 """
 
-import importlib.util
 import io
 import json
 import os
@@ -22,6 +21,7 @@ from hypothesis import strategies as st
 from PIL import Image
 
 import anytomd as ad
+from anytomd import _native
 from anytomd.backends.base import Recognizer
 from anytomd.backends.registry import BackendRegistry
 from anytomd.infra.specs import OcrSpec
@@ -32,11 +32,7 @@ _MODELS = Path("crates/oar/models")
 _PANIC = "PanicException"
 
 
-def _oar_installed() -> bool:
-    return importlib.util.find_spec("anytomd_oar") is not None
-
-
-oar_required = pytest.mark.skipif(not _oar_installed(), reason="the anytomd-oar wheel is not installed")
+oar_required = pytest.mark.skipif(not _native.OCR, reason="this wheel carries no Rust OCR engine (Intel macOS)")
 
 
 def _engine(spec: OcrSpec) -> Recognizer:
@@ -301,21 +297,19 @@ def test_ocr_p19_fuzz(oar_engine, c3) -> None:
     fuzz()
 
 
-##### P-21 · THE WHEEL LINKS ONNX RUNTIME IN #####
+##### P-21 · THE EXTENSION LINKS ONNX RUNTIME IN #####
 
 
 @oar_required
 @pytest.mark.skipif(sys.platform != "linux", reason="ldd is Linux-only; the release matrix proves the rest")
 def test_ocr_p21_static_onnxruntime_and_size() -> None:
-    module_spec = importlib.util.find_spec("anytomd_oar")
-    assert module_spec is not None
-    assert module_spec.origin is not None
-    so = Path(module_spec.origin)
+    so = Path(_native.__file__)
     ldd = shutil.which("ldd")
     assert ldd is not None, "ldd is part of the Linux toolchain"
     listed = subprocess.run([ldd, str(so)], capture_output=True, text=True, check=False)  # noqa: S603
     assert "onnxruntime" not in listed.stdout, listed.stdout
-    assert so.stat().st_size <= 40 * 1024**2, f"{so} is {so.stat().st_size / 1024**2:.0f} MB"
+    ### Uncompressed extension: 56 MB measured 2026-11-24, a 34 MB wheel; the cap catches a model or runtime doubling.
+    assert so.stat().st_size <= 64 * 1024**2, f"{so} is {so.stat().st_size / 1024**2:.0f} MB"
 
 
 ##### P-22 · COLD START #####

@@ -12,6 +12,7 @@ from typing import Final
 
 import pytest
 
+from anytomd.backends.oar import OarBackend
 from anytomd.backends.registry import BackendRegistry
 from anytomd.config.vision import VisionSettings
 from anytomd.infra.specs import VisionSpec
@@ -170,13 +171,12 @@ def fake_vision(monkeypatch) -> FakeVision:
 
 @pytest.fixture(autouse=True)
 def _isolate_engines(monkeypatch, request) -> Iterator[None]:
-    ### Unit determinism: the oar wheel exists on this machine but not in CI, and both engine caches are class-wide.
+    ### Unit determinism: no unit loads the real ONNX engine (auto falls to liteparse), and both caches are class-wide.
     if request.node.get_closest_marker("integration") is None and request.node.get_closest_marker("ocr") is None:
-        monkeypatch.setitem(sys.modules, "anytomd_oar", None)
+        monkeypatch.setattr(OarBackend, "available", False)
     BackendRegistry._common_liteparse.cache_clear()
     BackendRegistry._common_oar.cache_clear()
     yield
-    _ = sys.modules.pop("anytomd.backends.oar", None)
     BackendRegistry._common_liteparse.cache_clear()
     BackendRegistry._common_oar.cache_clear()
 
@@ -192,7 +192,6 @@ def missing_extra(monkeypatch):
             for module in (
                 "anytomd.backends.liteparse",
                 "anytomd.backends.openai",
-                "anytomd.backends.oar",
                 "anytomd.config.vision",
             )
         ]

@@ -15,3 +15,7 @@ crate-type = ["cdylib"]
 pyo3 = { workspace = true }
 anytomd = { workspace = true }
 tokio = { workspace = true }
+
+### ONNX Runtime ships no x86_64-apple-darwin binaries: Intel macOS builds without the Rust OCR and falls back to liteparse.
+[target.'cfg(not(all(target_os = "macos", target_arch = "x86_64")))'.dependencies]
+anytomd-oar = { path = "../oar" }

@@ -73,11 +73,11 @@ depends_on = ["anytomd.infra.errors", "anytomd.infra.specs"]
 
 [[modules]]
 path = "anytomd.backends.oar"
-depends_on = ["anytomd.backends.base", "anytomd.infra.specs", "anytomd.infra.warnings"]
+depends_on = ["anytomd._native", "anytomd.backends.base", "anytomd.infra.specs", "anytomd.infra.warnings"]
 
 [[modules]]
 path = "anytomd.backends.registry"
-depends_on = ["anytomd.backends.base", "anytomd.infra.errors", "anytomd.infra.specs"]
+depends_on = ["anytomd.backends.base", "anytomd.backends.oar", "anytomd.infra.errors", "anytomd.infra.specs"]
 
 [[modules]]
 path = "anytomd.logic.sources"
@@ -93,7 +93,7 @@ depends_on = ["anytomd.backends.base", "anytomd.backends.native", "anytomd.backe
 
 [[modules]]
 path = "anytomd.logic.ocrreadiness"
-depends_on = ["anytomd.backends.registry", "anytomd.config.ocr", "anytomd.infra.specs"]
+depends_on = ["anytomd.backends.oar", "anytomd.backends.registry", "anytomd.config.ocr", "anytomd.infra.specs"]
 
 [[modules]]
 path = "anytomd.logic.detection"

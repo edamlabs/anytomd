@@ -1,13 +1,12 @@
-"""oar backend: local Rust OCR, PP-OCR through the optional `anytomd-oar` extension. Imported only when its extra is installed."""
+"""oar backend: the Rust OCR linked into `anytomd._native` — PP-OCR on ONNX Runtime, absent only on Intel macOS."""
 
 import asyncio
 import logging
 from collections.abc import Mapping
 from types import MappingProxyType
-from typing import Final
+from typing import ClassVar, Final
 
-from anytomd_oar import OarEngine
-
+from anytomd import _native
 from anytomd.backends.base import Recognition
 from anytomd.infra.specs import OCR_SCRIPTS, OcrModelSize, OcrScript, OcrSpec
 from anytomd.infra.warnings import DocumentWarning
@@ -22,6 +21,9 @@ class OarBackend:
     """The Rust recognizer: models on disk or embedded, the GIL released during inference."""
 
     __slots__ = ("_engine",)
+
+    ### False where the wheel was built without the engine: callers fall back to liteparse.
+    available: ClassVar[bool] = _native.OCR
 
     ##### PRIVATE #####
 
@@ -45,7 +47,7 @@ class OarBackend:
     ##### PUBLIC #####
 
     def __init__(self, spec: OcrSpec, model_dir: str | None = None) -> None:
-        self._engine = OarEngine(
+        self._engine = _native.OarEngine(
             size=spec.size,
             script=self._init_script(spec),
             columns=spec.columns,

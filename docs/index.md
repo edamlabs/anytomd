@@ -39,13 +39,14 @@ Three verbs, each with its async twin:
 
 ## Extras
 
-The base package has no Python dependencies. Extras add a capability, and once installed they work on their own:
+The base package has no Python dependencies and already reads the text in images: the Rust OCR engine and its models
+are inside the wheel (every platform but Intel macOS, which uses `[ocr]`). Extras add a capability, and once installed
+they work on their own:
 
 | Extra | Adds |
 |---|---|
 | `anytomd[pdf]` | PDF conversion |
-| `anytomd[ocr]` | The text inside images |
-| `anytomd[oar]` | The Rust OCR engine: faster, offline from the first use |
+| `anytomd[ocr]` | Tesseract and ocria-nano through liteparse: scanned PDFs, and image text on Intel macOS |
 | `anytomd[vlm]` | Image descriptions from any OpenAI-compatible vision model, and `describe` |
 | `anytomd[full]` | All of them |
 

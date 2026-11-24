@@ -27,7 +27,6 @@ classifiers = [
 [project.optional-dependencies]
 ocr = ["liteparse>=2.21"]
 pdf = ["liteparse>=2.21"]
-oar = ["anytomd-oar==1.5.0"]
 vlm = ["openai>=3.31", "pydantic-settings>=2.11"]
 full = ["anytomd[ocr,pdf,vlm]"]
 
@@ -80,10 +79,7 @@ dev = [
 [tool.uv]
 required-version = ">=0.12"
 default-groups = ["dev"]
-cache-keys = [{ file = "pyproject.toml" }, { file = "Cargo.toml" }, { file = "Cargo.lock" }, { file = "crates/**/*.rs" }]
-
-[tool.uv.sources]
-anytomd-oar = { path = "crates/oar" }
+cache-keys = [{ file = "pyproject.toml" }, { file = "Cargo.toml" }, { file = "Cargo.lock" }, { file = "crates/**/*.rs" }, { file = "crates/oar/models/*" }]
 
 [tool.maturin]
 manifest-path = "crates/native/Cargo.toml"
@@ -121,8 +117,6 @@ ban-relative-imports = "all"
 
 [tool.ty.environment]
 python-version = "3.12"
-### The optional oar package is not installed in CI: its source and stubs resolve the import.
-extra-paths = ["crates/oar/python"]
 
 [tool.ty.src]
 include = ["src", "tests", "tools"]
